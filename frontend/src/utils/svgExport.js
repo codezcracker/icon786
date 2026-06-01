@@ -154,13 +154,18 @@ function injectBackgroundRect(svgString, fill) {
   return svgString.replace(/(<svg[^>]*>)/i, `$1${rect}`);
 }
 
+/** Strip root <svg> attributes we replace so nothing is duplicated in the file. */
+function stripRootSvgAttrs(attrs) {
+  return attrs
+    .replace(/\s(width|height|viewBox|overflow)=["'][^"']*["']/gi, '')
+    .replace(/\sxmlns(?::xlink)?=["'][^"']*["']/gi, '');
+}
+
 function setSvgDimensions(svgString, outW, outH) {
   const vb = parseViewBox(svgString);
   return svgString.replace(/<svg([^>]*)>/i, (match, attrs) => {
-    const a = attrs
-      .replace(/\s(width|height)=["'][^"']*["']/gi, '')
-      .replace(/\sviewBox=["'][^"']*["']/gi, '');
-    return `<svg${a} width="${outW}" height="${outH}" viewBox="${vb.minX} ${vb.minY} ${vb.width} ${vb.height}" overflow="visible">`;
+    const a = stripRootSvgAttrs(attrs);
+    return `<svg xmlns="http://www.w3.org/2000/svg"${a} width="${outW}" height="${outH}" viewBox="${vb.minX} ${vb.minY} ${vb.width} ${vb.height}" overflow="visible">`;
   });
 }
 
