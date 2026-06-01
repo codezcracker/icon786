@@ -36,15 +36,6 @@ export default function Footer() {
               <li><Link to="/font-generator">Font Generator</Link></li>
             </ul>
           </div>
-
-          <div>
-            <p className="footer__section-title">Icon Sets</p>
-            <ul className="footer__list">
-              {['Material Design', 'Phosphor Icons', 'Tabler Icons', 'Lucide', 'Font Awesome', 'Simple Icons', 'Heroicons', '150+ more…'].map((s) => (
-                <li key={s}><span>{s}</span></li>
-              ))}
-            </ul>
-          </div>
         </div>
 
         <div className="footer__bottom">
