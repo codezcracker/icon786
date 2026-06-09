@@ -1,4 +1,4 @@
-# IconVault — World's Largest Free Icon Library
+# Icon786 — Free Icon Library
 
 > 201,000+ commercial-safe icons from 134 icon sets (MIT, Apache, ISC, CC0).
 

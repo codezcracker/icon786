@@ -1,7 +1,7 @@
 {
-  "name": "iconvault-backend",
+  "name": "icon786-backend",
   "version": "1.0.0",
-  "description": "IconVault API Server",
+  "description": "Icon786 API Server",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",

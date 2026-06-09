@@ -1,7 +1,7 @@
 {
-  "name": "iconvault",
+  "name": "icon786",
   "version": "1.0.0",
-  "description": "World's Largest Free Icon Library",
+  "description": "Icon786 — Free Icon Library",
   "scripts": {
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "dev:frontend": "cd frontend && npm run dev",

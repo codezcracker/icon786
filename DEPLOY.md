@@ -1,4 +1,4 @@
-# Deploy Pixora on Vercel
+# Deploy Icon786 on Vercel
 
 ## What works on Vercel (frontend only)
 

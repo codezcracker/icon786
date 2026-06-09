@@ -33,7 +33,7 @@ app.use('/api/font', fontRoutes);
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
-    name: 'IconVault API',
+    name: 'Icon786 API',
     version: '1.0.0',
     uptime: process.uptime(),
   });
@@ -51,6 +51,6 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`\n🚀 IconVault API running at http://localhost:${PORT}`);
+  console.log(`\n🚀 Icon786 API running at http://localhost:${PORT}`);
   console.log(`📖 Health check: http://localhost:${PORT}/api/health\n`);
 });

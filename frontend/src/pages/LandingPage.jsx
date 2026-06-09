@@ -185,7 +185,7 @@ export default function LandingPage() {
               Everything you need
             </div>
             <h2 className="section-title" style={{ marginBottom: 12 }}>
-              Why Designers Love <span className="gradient-text">Pixora</span>
+              Why Designers Love <span className="gradient-text">Icon786</span>
             </h2>
             <p className="text-muted" style={{ fontSize: 16, maxWidth: 480, margin: '0 auto' }}>
               From search to download, every feature designed to make your workflow faster.

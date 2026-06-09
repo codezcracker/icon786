@@ -21,7 +21,7 @@ export default function Navbar() {
           <div className="navbar__logo">
             <Zap size={17} color="white" fill="white" />
           </div>
-          <span className="navbar__name">Pix<span>ora</span></span>
+          <span className="navbar__name">Icon<span>786</span></span>
         </Link>
 
         <nav className="navbar__links">

@@ -12,7 +12,7 @@ export default function Footer() {
               <div className="footer__brand-logo">
                 <Zap size={17} color="white" fill="white" />
               </div>
-              Pix<span>ora</span>
+              Icon<span>786</span>
             </div>
             <p className="footer__desc">
               {`Free icon library — ${CATALOG.shortTagline} (${CATALOG.licenseNote}). See LICENSES.md for credits.`}
@@ -39,7 +39,7 @@ export default function Footer() {
         </div>
 
         <div className="footer__bottom">
-          <p>© 2026 Pixora. All icons free forever.</p>
+          <p>© 2026 Icon786. All icons free forever.</p>
           <p style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             Made with <Heart size={12} color="#f07e96" fill="#f07e96" /> for designers & developers
           </p>

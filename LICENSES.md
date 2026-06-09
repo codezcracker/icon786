@@ -1,12 +1,12 @@
-# Icon licenses (Pixora catalog)
+# Icon licenses (Icon786 catalog)
 
-Pixora exposes **201,259 icons** from **134 icon sets** on Iconify whose licenses are **MIT, Apache 2.0, ISC, or CC0** — suitable for commercial use without per-download attribution.
+Icon786 exposes **201,259 icons** from **134 icon sets** on Iconify whose licenses are **MIT, Apache 2.0, ISC, or CC0** — suitable for commercial use without per-download attribution.
 
 Icons are loaded from the [Iconify API](https://iconify.design/) at runtime. Each set keeps its **original license**; this file summarizes the policy, not legal advice.
 
 ## Your app code
 
-Pixora application source is licensed under **MIT** (see repository `LICENSE` / `README` when added).
+Icon786 application source is licensed under **MIT** (see repository `LICENSE` / `README` when added).
 
 ## Icon sets
 
