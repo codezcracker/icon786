@@ -315,7 +315,7 @@ export default function IconDetailPage() {
                 {downloadError}
               </p>
             )}
-            <p className="download-note">No sign-up · No attribution · Free forever</p>
+            <p className="download-note">No sign-up · Free forever</p>
           </div>
 
           {/* Use in code */}

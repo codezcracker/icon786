@@ -189,7 +189,7 @@ ${selected.map((i) => `<div class="item">
     <div className="font-gen-page">
       <div className="font-gen-header">
         <h1>Icon <span className="gradient-text">Font Generator</span></h1>
-        <p>Select icons from our 201k+ commercial-safe library and generate a custom icon font with CSS.</p>
+        <p>Select icons and generate a custom icon font with CSS.</p>
       </div>
 
       <div className="font-gen-layout">
@@ -373,7 +373,7 @@ ${selected.map((i) => `<div class="item">
             <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>How to Use</h3>
             <div className="font-steps">
               {[
-                'Search and select icons from the 201k+ library',
+                'Search and select icons to include',
                 'Set your preferred font name',
                 'Click Generate & Download',
                 'Add the CSS file to your project',

@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import { Search, SlidersHorizontal, X, Grid3X3, Grid2X2, Heart } from 'lucide-react';
-import { searchIcons, getAllCollections, PERMISSIVE_STATS } from '../utils/iconSearch';
-import { CATALOG } from '../utils/catalogStats';
+import { searchIcons, getAllCollections } from '../utils/iconSearch';
 
 const PAGE_SIZE = 60;
 
@@ -66,7 +65,7 @@ export default function BrowsePage() {
     <div className="browse-page">
       <div className="browse-header">
         <h1>Browse <span className="gradient-text">Icons</span></h1>
-        <p>Search {CATALOG.shortTagline} — {CATALOG.licenseNote}</p>
+        <p>Search, edit, and download icons in any format.</p>
       </div>
 
       {/* Search row */}
@@ -108,7 +107,7 @@ export default function BrowsePage() {
                     onChange={(e) => setSelectedSet(e.target.value)}
                     className="input"
                   >
-                    <option value="all">All sets ({PERMISSIVE_STATS.totalIcons.toLocaleString()}+)</option>
+                    <option value="all">All sets</option>
                     {setOptions.map((s) => (
                       <option key={s.value} value={s.value}>{s.label}</option>
                     ))}

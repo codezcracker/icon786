@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
-import { Search, Download, Palette, Type, ArrowRight, Sparkles, Globe, Zap, Shield } from 'lucide-react';
-import { CATALOG } from '../utils/catalogStats';
+import { Search, Download, Palette, Type, ArrowRight, Sparkles, Globe, Zap } from 'lucide-react';
 
 // Only use well-known valid Iconify icon IDs
 const FEATURED_ICONS = [
@@ -17,17 +16,17 @@ const FEATURED_ICONS = [
 ];
 
 const STATS = [
-  { value: CATALOG.totalLabel, label: 'Free Icons', icon: 'ph:squares-four-bold' },
-  { value: CATALOG.setsLabel, label: 'Icon Sets', icon: 'ph:stack-bold' },
+  { value: '200k+', label: 'Icons', icon: 'ph:squares-four-bold' },
+  { value: '100+', label: 'Collections', icon: 'ph:stack-bold' },
   { value: '10+', label: 'Export Formats', icon: 'ph:export-bold' },
-  { value: '100%', label: 'Commercial OK', icon: 'ph:heart-bold' },
+  { value: '100%', label: 'Free', icon: 'ph:heart-bold' },
 ];
 
 const FEATURES = [
   {
     icon: <Search size={22} />,
     title: 'Instant Search',
-    desc: `Find any icon from ${CATALOG.totalLabel} in milliseconds with smart full-text search.`,
+    desc: 'Find any icon in milliseconds with smart full-text search.',
     bg: '#EFF6FF', color: '#2563EB',
   },
   {
@@ -50,27 +49,10 @@ const FEATURES = [
   },
   {
     icon: <Globe size={22} />,
-    title: "World's Largest",
-    desc: '150+ premium icon sets: Material, Phosphor, Tabler, Lucide, Heroicons and more.',
+    title: 'Huge Library',
+    desc: 'Browse a massive icon library with unified search across every collection.',
     bg: 'var(--primary-light)', color: 'var(--primary)',
   },
-  {
-    icon: <Shield size={22} />,
-    title: 'Open License',
-    desc: 'All icons are free under open-source licenses. Commercial use always included.',
-    bg: '#F0FDFA', color: '#0D9488',
-  },
-];
-
-const ICON_SETS = [
-  { name: 'Material Design', count: '7,000+', prefix: 'mdi', icon: 'mdi:home', color: '#4285F4' },
-  { name: 'Phosphor Icons', count: '7,000+', prefix: 'ph', icon: 'ph:house-bold', color: '#E8395A' },
-  { name: 'Tabler Icons', count: '5,000+', prefix: 'tabler', icon: 'tabler:home', color: '#4099F5' },
-  { name: 'Lucide', count: '1,400+', prefix: 'lucide', icon: 'lucide:home', color: '#F97316' },
-  { name: 'Heroicons', count: '300+', prefix: 'heroicons', icon: 'heroicons:home-20-solid', color: '#6366F1' },
-  { name: 'Font Awesome', count: '2,000+', prefix: 'fa6-solid', icon: 'fa6-solid:house', color: '#528DD3' },
-  { name: 'Simple Icons', count: '3,000+', prefix: 'simple-icons', icon: 'simple-icons:github', color: '#1D1D1D' },
-  { name: 'Remix Icon', count: '2,500+', prefix: 'ri', icon: 'ri:home-2-line', color: '#8B5CF6' },
 ];
 
 export default function LandingPage() {
@@ -104,18 +86,17 @@ export default function LandingPage() {
           <div className="anim-slide">
             <div className="hero__label">
               <Sparkles size={13} />
-              World's Largest Free Icon Library
+              Free Icon Library
             </div>
 
               <h1 className="hero__title">
-                {CATALOG.totalLabel}<br />
-                <span className="gradient-text">Icons. All Free.</span><br />
+                Icons.<br />
+                <span className="gradient-text">All Free.</span><br />
                 Always.
               </h1>
 
               <p className="hero__subtitle">
-                Search, edit, and download icons from the world's largest free & open-source
-                icon collection. SVG, PNG, fonts — any format, any size, no sign-up required.
+                Search, edit, and download icons in any format. SVG, PNG, fonts — any size, no sign-up required.
               </p>
 
             <form onSubmit={handleSearch} className="hero__search-row">
@@ -127,7 +108,7 @@ export default function LandingPage() {
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder={`Search ${CATALOG.totalLabel} icons…`}
+                  placeholder="Search icons…"
                   className="input input-with-icon"
                 />
               </div>
@@ -205,35 +186,21 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Icon Sets ── */}
+      {/* ── Collections ── */}
       <section className="section" style={{ background: 'var(--white)' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <h2 className="section-title" style={{ marginBottom: 12 }}>
-{CATALOG.setsLabel} <span className="gradient-text">Icon Sets</span>
+              Browse <span className="gradient-text">Collections</span>
             </h2>
             <p className="text-muted" style={{ fontSize: 16 }}>
-              All the best icon sets in one place — unified search across everything.
+              Explore icons organized by style and category — all in one place.
             </p>
           </div>
-          <div className="sets-grid">
-            {ICON_SETS.map((s) => (
-              <div key={s.name} className="set-card" onClick={() => navigate(`/browse?set=${s.prefix}`)}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                  <div className="set-card__icon" style={{ background: s.color + '18' }}>
-                    <Icon icon={s.icon} style={{ fontSize: 22, color: s.color }} />
-                  </div>
-                  <span className="set-card__count">{s.count}</span>
-                </div>
-                <h3>{s.name}</h3>
-                <p>icons available</p>
-              </div>
-            ))}
-          </div>
-          <div style={{ textAlign: 'center', marginTop: 36 }}>
+          <div style={{ textAlign: 'center' }}>
             <button className="btn btn-secondary" onClick={() => navigate('/collections')}
               style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              View All {CATALOG.setsLabel} Collections <ArrowRight size={16} />
+              View All Collections <ArrowRight size={16} />
             </button>
           </div>
         </div>
@@ -249,7 +216,7 @@ export default function LandingPage() {
           </div>
           <div className="steps-grid">
             {[
-              { n: '01', icon: 'ph:magnifying-glass-bold', title: 'Search & Find', desc: `Search ${CATALOG.totalLabel} icons across ${CATALOG.setsLabel} collections with powerful filters.` },
+              { n: '01', icon: 'ph:magnifying-glass-bold', title: 'Search & Find', desc: 'Search icons across all collections with powerful filters.' },
               { n: '02', icon: 'ph:paint-brush-bold', title: 'Edit & Customize', desc: 'Change colors, size, stroke width, and background in real-time.' },
               { n: '03', icon: 'ph:download-simple-bold', title: 'Download Free', desc: 'Export in SVG, PNG, JPG, WebP, or as an icon font. Always free.' },
             ].map((s) => (
@@ -270,9 +237,9 @@ export default function LandingPage() {
       <section className="cta-section">
         <div className="cta-glow" />
         <h2>
-          Start using <span className="highlight">{CATALOG.totalLabel}</span> free icons today
+          Start using <span className="highlight">free icons</span> today
         </h2>
-        <p>No sign-up required. No attribution needed. Just search, edit, and download.</p>
+        <p>No sign-up required. Just search, edit, and download.</p>
         <div className="cta-buttons">
           <button className="btn btn-primary btn-lg" onClick={() => navigate('/browse')}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>

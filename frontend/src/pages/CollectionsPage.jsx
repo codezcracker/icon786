@@ -45,8 +45,8 @@ export default function CollectionsPage() {
         <h1>Icon <span className="gradient-text">Collections</span></h1>
         <p>
           {loading
-            ? 'Loading every open-source collection…'
-            : `${collections.length} collections · ${totalIcons.toLocaleString()} icons — all free & open source`}
+            ? 'Loading collections…'
+            : `${collections.length} collections · ${totalIcons.toLocaleString()} icons`}
         </p>
       </div>
 
@@ -55,7 +55,6 @@ export default function CollectionsPage() {
         {[
           { label: 'Collections', value: loading ? '…' : collections.length },
           { label: 'Total Icons', value: loading ? '…' : totalIcons.toLocaleString() },
-          { label: 'Open Source', value: '100%' },
           { label: 'Free Forever', value: '∞' },
         ].map((s) => (
           <div key={s.label} className="collections-stat">

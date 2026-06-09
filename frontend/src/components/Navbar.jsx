@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Zap, Menu, X } from 'lucide-react';
-import { CATALOG } from '../utils/catalogStats';
 
 const NAV_LINKS = [
   { label: 'Browse', path: '/browse' },
@@ -38,7 +37,7 @@ export default function Navbar() {
 
         <div className="navbar__badge">
           <span className="badge-dot" />
-          {`${CATALOG.totalLabel} · Commercial OK`}
+          Free icons
         </div>
 
         <button className="navbar__toggle" onClick={() => setOpen(!open)}>

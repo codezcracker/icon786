@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { Zap, GitFork, Share2, Heart } from 'lucide-react';
-import { CATALOG } from '../utils/catalogStats';
 
 export default function Footer() {
   return (
@@ -15,7 +14,7 @@ export default function Footer() {
               Icon<span>786</span>
             </div>
             <p className="footer__desc">
-              {`Free icon library — ${CATALOG.shortTagline} (${CATALOG.licenseNote}). See LICENSES.md for credits.`}
+              Search, edit, and download icons in any format — free forever.
             </p>
             <div className="footer__social">
               <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="footer__social-btn">
