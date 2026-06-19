@@ -5,6 +5,3 @@ services:
     plan: free
     buildCommand: npm run render:build
     startCommand: NODE_ENV=production npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
