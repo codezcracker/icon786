@@ -56,9 +56,6 @@ export default function FontGeneratorPage() {
     try {
       // Backend generates proper TTF + WOFF + CSS + self-contained HTML demo in a ZIP
       const endpoint = apiUrl('/api/font/generate');
-      if (!endpoint) {
-        throw new Error('Font generator needs a backend (set VITE_API_URL on Vercel)');
-      }
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

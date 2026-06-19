@@ -6,7 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const collections = require('../frontend/node_modules/@iconify/json/collections.json');
+const collections = require('../backend/node_modules/@iconify/json/collections.json');
 
 const PERMISSIVE = /^(MIT|Apache 2\.0|ISC|Unlicense|0BSD|BSD|CC0|Public Domain)/i;
 const ATTRIBUTION = /CC BY(?!-SA)/i;

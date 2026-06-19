@@ -2,7 +2,7 @@
 
 Icon786 exposes **201,259 icons** from **134 icon sets** on Iconify whose licenses are **MIT, Apache 2.0, ISC, or CC0** — suitable for commercial use without per-download attribution.
 
-Icons are loaded from the [Iconify API](https://iconify.design/) at runtime. Each set keeps its **original license**; this file summarizes the policy, not legal advice.
+Icons are loaded from **local files** (`@iconify/json` on the server). No runtime dependency on Iconify’s public API.
 
 ## Your app code
 

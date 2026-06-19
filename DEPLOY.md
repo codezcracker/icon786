@@ -1,50 +1,45 @@
-# Deploy Icon786 on Vercel
+# Deploy Icon786 on Render (recommended)
 
-## What works on Vercel (frontend only)
+One **Web Service** runs React + Express + API on the same server.
+
+## What you get
 
 | Feature | Works? |
 |---------|--------|
-| Browse & search 201k+ icons | Yes (Iconify API) |
-| Icon detail, PNG/JPG/WebP/SVG download | Yes (browser export) |
-| Editor | Yes |
-| Collections | Yes |
-| Font generator ZIP | Needs backend (see below) |
+| Browse, search, editor, collections | Yes |
+| SVG / PNG / JPG / WebP download | Yes |
+| Font generator ZIP | Yes |
+| Future WebSockets | Yes (same Node process) |
 
-## Quick deploy (GitHub)
+## Deploy from GitHub
 
-1. Push this repo to GitHub (do **not** commit `.env` or `_font-backup/`).
+1. Push this repo to GitHub (do **not** commit `.env`, `backend/.env`, or `_font-backup/`).
 
-2. Go to [vercel.com](https://vercel.com) → **Add New Project** → import your repo.
+2. Go to [render.com](https://render.com) → **New** → **Blueprint** (or **Web Service**).
 
-3. Vercel should detect settings from `vercel.json`:
-   - **Build command:** `cd frontend && npm run build`
-   - **Output directory:** `frontend/dist`
+3. Connect your repo. Render reads `render.yaml` automatically, or set manually:
+   - **Root directory:** `.` (repo root)
+   - **Build command:** `npm run render:build`
+   - **Start command:** `NODE_ENV=production npm start`
 
-4. Click **Deploy**. Your site will be live at `https://your-project.vercel.app`.
+4. Click **Deploy**. Your app will be live at `https://icon786.onrender.com` (or similar).
 
-## Deploy from terminal
+5. Optional env vars (Render dashboard → **Environment**):
+   - `FRONTEND_URL` — your Render URL (only needed if you split frontend later)
+
+No `VITE_API_URL` needed — frontend and API share the same origin.
+
+**Icons are self-hosted:** the backend reads from `@iconify/json` (~400MB in `node_modules`). No calls to `api.iconify.design` at runtime. If Iconify ever shuts down their API, your app still works as long as you keep the JSON package (or copy it into your repo).
+
+## Local production test
 
 ```bash
-cd /path/to/Pixora
-npx vercel
+npm run install:all
+npm run build
+NODE_ENV=production npm start
 ```
 
-Follow prompts (login, link project). Production:
-
-```bash
-npx vercel --prod
-```
-
-## Optional: Font generator backend
-
-The font ZIP API uses Node (Sharp, Potrace) and does **not** run on Vercel’s static hosting.
-
-1. Deploy `backend/` to [Render](https://render.com) or [Railway](https://railway.app) (free tier).
-2. In Vercel → **Settings → Environment Variables**, add:
-   ```
-   VITE_API_URL=https://your-backend.onrender.com
-   ```
-3. Redeploy the frontend.
+Open http://localhost:3001 — same as Render.
 
 ## Local dev (unchanged)
 
@@ -53,17 +48,23 @@ npm run install:all
 npm run dev
 ```
 
-Frontend: http://localhost:5173  
-Backend: http://localhost:3001  
+Frontend: http://localhost:5173 (proxies `/api` → backend)  
+Backend: http://localhost:3001
 
-For local backend in the frontend, create `frontend/.env.local`:
+---
 
-```
-VITE_API_URL=http://localhost:3001
-```
+## Alternative: Vercel (frontend only)
+
+Static hosting on Vercel still works via `vercel.json`, but **font generator** needs a separate backend.
+
+1. Deploy frontend: `npx vercel --prod`
+2. Deploy `backend/` to Render as a second service
+3. Set `VITE_API_URL=https://your-api.onrender.com` in Vercel env and redeploy
+
+See `vercel.json` for Vercel settings.
 
 ## Troubleshooting
 
-- **404 on refresh** — `vercel.json` rewrites should fix this; ensure it’s committed.
-- **Blank page** — Check Vercel build logs; run `cd frontend && npm run build` locally.
-- **Downloads fail** — Use a hard refresh; exports run in the browser, no backend required.
+- **404 on refresh** — ensure `NODE_ENV=production` so Express serves `frontend/dist` with SPA fallback.
+- **Font generator fails** — check Render logs; free tier may sleep (~30–60s first request). Upgrade to Starter for always-on.
+- **Build fails on Sharp** — Render Node runtime supports native modules; ensure Node 18+.

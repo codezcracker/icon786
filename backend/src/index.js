@@ -1,19 +1,41 @@
 const express = require('express');
+const path = require('path');
+const fs = require('fs');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+const isProd = process.env.NODE_ENV === 'production';
+const frontendDist = path.resolve(__dirname, '../../frontend/dist');
+const serveFrontend = isProd && fs.existsSync(frontendDist);
+
 const iconRoutes = require('./routes/icons');
 const exportRoutes = require('./routes/export');
 const fontRoutes = require('./routes/font');
+const localIcons = require('./services/localIcons');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Security
-app.use(helmet({ crossOriginEmbedderPolicy: false }));
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:3000', process.env.FRONTEND_URL].filter(Boolean) }));
+app.use(helmet({
+  crossOriginEmbedderPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+      imgSrc: ["'self'", 'data:', 'blob:'],
+      connectSrc: ["'self'"],
+    },
+  },
+}));
+const corsOrigins = ['http://localhost:5173', 'http://localhost:3000', process.env.FRONTEND_URL].filter(Boolean);
+if (!serveFrontend) {
+  app.use(cors({ origin: corsOrigins.length ? corsOrigins : true }));
+}
 app.use(express.json({ limit: '10mb' }));
 
 // Rate limiting
@@ -39,10 +61,18 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// 404
-app.use((req, res) => {
+// API 404
+app.use('/api', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
+
+// Production: serve React build from the same server
+if (serveFrontend) {
+  app.use(express.static(frontendDist, { maxAge: '1d', index: false }));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendDist, 'index.html'));
+  });
+}
 
 // Error handler
 app.use((err, req, res, next) => {
@@ -51,6 +81,9 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`\n🚀 Icon786 API running at http://localhost:${PORT}`);
-  console.log(`📖 Health check: http://localhost:${PORT}/api/health\n`);
+  console.log(`\n🚀 Icon786 running at http://localhost:${PORT}`);
+  if (serveFrontend) console.log('📦 Serving frontend from frontend/dist');
+  console.log(`📖 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🗂  Icons: local library (@iconify/json, ${require('./data/permissive-prefixes.json').setCount} sets)\n`);
+  localIcons.getSearchIndex().catch((e) => console.warn('Icon index preload failed:', e.message));
 });
