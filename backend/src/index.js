@@ -24,8 +24,8 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-      fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      fontSrc: ["'self'", 'data:'],
       imgSrc: ["'self'", 'data:', 'blob:'],
       connectSrc: ["'self'"],
     },
@@ -83,5 +83,5 @@ app.listen(PORT, () => {
   console.log(`\n🚀 Icon786 running at http://localhost:${PORT}`);
   if (serveFrontend) console.log('📦 Serving frontend from frontend/dist');
   console.log(`📖 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`🗂  Icons: local library (@iconify/json, ${require('./data/permissive-prefixes.json').setCount} sets, lazy search)\n`);
+  console.log(`🗂  Icons: @icon786/icons (${require('./data/permissive-prefixes.json').setCount} sets, lazy search)\n`);
 });

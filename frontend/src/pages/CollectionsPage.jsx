@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Icon } from '@iconify/react';
+import Icon from '../components/Icon';
 import { Search, ArrowRight } from 'lucide-react';
 import { getAllCollections } from '../utils/iconSearch';
 

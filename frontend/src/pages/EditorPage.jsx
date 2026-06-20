@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Icon } from '@iconify/react';
+import Icon from '../components/Icon';
 import { HexColorPicker } from 'react-colorful';
 import { Search, Download, RotateCcw } from 'lucide-react';
 import { getIconSVG } from '../utils/iconSearch';

@@ -3,7 +3,16 @@
    Pure CSS — No framework dependencies
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&display=swap');
+@import '@fontsource/quicksand/300.css';
+@import '@fontsource/quicksand/400.css';
+@import '@fontsource/quicksand/500.css';
+@import '@fontsource/quicksand/600.css';
+@import '@fontsource/quicksand/700.css';
+@import '@fontsource/bricolage-grotesque/400.css';
+@import '@fontsource/bricolage-grotesque/500.css';
+@import '@fontsource/bricolage-grotesque/600.css';
+@import '@fontsource/bricolage-grotesque/700.css';
+@import '@fontsource/bricolage-grotesque/800.css';
 
 /* ============================================================
    1. CSS Custom Properties
@@ -46,6 +55,12 @@
 
   --transition: all 0.2s ease;
   --font: 'Quicksand', 'Bricolage Grotesque', system-ui, -apple-system, sans-serif;
+}
+
+.icon786 svg {
+  width: 1em;
+  height: 1em;
+  display: block;
 }
 
 /* ============================================================

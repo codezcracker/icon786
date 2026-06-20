@@ -1,0 +1,23 @@
+{
+  "name": "@icon786/icons",
+  "version": "1.0.0",
+  "description": "Icon786 icon library — 201k+ permissive icons (MIT, Apache, ISC, CC0)",
+  "license": "MIT",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./react": "./react.js"
+  },
+  "files": [
+    "index.js",
+    "collections.json",
+    "prefixes.json",
+    "json"
+  ],
+  "keywords": ["icons", "svg", "icon786", "icon-library"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codezcracker/icon786.git",
+    "directory": "packages/icon786-icons"
+  }
+}

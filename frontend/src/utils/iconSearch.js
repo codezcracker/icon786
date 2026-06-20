@@ -1,4 +1,4 @@
-// Icons served from our backend (@iconify/json on disk — no Iconify API dependency)
+// Icons served from @icon786/icons on the server
 import {
   isPermissivePrefix,
   PERMISSIVE_STATS,

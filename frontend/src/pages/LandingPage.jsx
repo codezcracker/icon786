@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Icon } from '@iconify/react';
+import Icon from '../components/Icon';
 import { Search, Download, Palette, Type, ArrowRight, Sparkles, Globe, Zap } from 'lucide-react';
 
 // Only use well-known valid Iconify icon IDs

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Icon } from '@iconify/react';
+import Icon from '../components/Icon';
 import { Search, SlidersHorizontal, X, Grid3X3, Grid2X2, Heart } from 'lucide-react';
 import { searchIcons, getAllCollections } from '../utils/iconSearch';
 

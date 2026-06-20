@@ -1,13 +1,14 @@
 const fs = require('fs');
-const { locate } = require('@iconify/json');
-const collectionsMeta = require('@iconify/json/collections.json');
+const path = require('path');
+const icon786Icons = require('@icon786/icons');
 const catalog = require('../data/permissive-prefixes.json');
 const { isPermissivePrefix } = require('../utils/permissiveLicenses');
+
+const collectionsMeta = icon786Icons.getCollections();
 
 const MAX_CACHE = 4;
 const iconSetCache = new Map();
 
-// Search larger sets first so common queries return useful results quickly
 const PREFIXES_BY_SIZE = [...catalog.prefixes].sort(
   (a, b) => (collectionsMeta[b]?.total || 0) - (collectionsMeta[a]?.total || 0)
 );
@@ -28,7 +29,9 @@ function loadIconSet(prefix, { retain = true } = {}) {
     return hit;
   }
   try {
-    const data = JSON.parse(fs.readFileSync(locate(prefix), 'utf8'));
+    const file = icon786Icons.locate(prefix);
+    if (!fs.existsSync(file)) return null;
+    const data = JSON.parse(fs.readFileSync(file, 'utf8'));
     if (retain) {
       iconSetCache.set(prefix, data);
       trimCache();
@@ -38,10 +41,6 @@ function loadIconSet(prefix, { retain = true } = {}) {
     console.warn(`Failed to load icon set "${prefix}":`, e.message);
     return null;
   }
-}
-
-function releaseIconSet(prefix) {
-  iconSetCache.delete(prefix);
 }
 
 function resolveIcon(data, name) {
@@ -80,7 +79,6 @@ async function search(query, prefix, limit = 999) {
     return searchInSet(prefix, q, max);
   }
 
-  // Scan one icon set at a time — low memory, safe on Render free tier
   const results = [];
   for (const p of PREFIXES_BY_SIZE) {
     if (results.length >= max) break;
@@ -91,12 +89,7 @@ async function search(query, prefix, limit = 999) {
 }
 
 function getCollections() {
-  const out = {};
-  for (const prefix of catalog.prefixes) {
-    const info = collectionsMeta[prefix];
-    if (info) out[prefix] = info;
-  }
-  return out;
+  return collectionsMeta;
 }
 
 function getCollection(prefix) {

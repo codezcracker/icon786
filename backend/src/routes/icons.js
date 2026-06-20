@@ -7,7 +7,7 @@ router.get('/catalog-stats', (_req, res) => {
   res.json(PERMISSIVE_STATS);
 });
 
-// ── Local icon library (from @iconify/json — no external API) ──
+// ── Icon786 local library (@icon786/icons) ──
 
 router.get('/search', async (req, res) => {
   try {
@@ -50,35 +50,6 @@ router.get('/collection/:prefix', (req, res) => {
     res.json(data);
   } catch (e) {
     res.status(500).json({ error: e.message });
-  }
-});
-
-// Iconify-compatible paths for @iconify/react
-router.get('/iconify/:prefix.json', (req, res) => {
-  try {
-    const { prefix } = req.params;
-    if (!assertPermissivePrefix(prefix, res)) return;
-    const names = (req.query.icons || '').split(',').filter(Boolean);
-    const data = localIcons.getIconsJSON(prefix, names);
-    if (!data) return res.status(404).json({ error: 'Collection not found' });
-    res.setHeader('Cache-Control', 'public, max-age=86400');
-    res.json(data);
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-router.get('/iconify/:prefix/:name.svg', (req, res) => {
-  try {
-    const { prefix, name } = req.params;
-    if (!assertPermissivePrefix(prefix, res)) return;
-    const svg = localIcons.getIconSVG(prefix, name, req.query);
-    if (!svg) return res.status(404).json({ error: 'Icon not found' });
-    res.setHeader('Content-Type', 'image/svg+xml');
-    res.setHeader('Cache-Control', 'public, max-age=86400');
-    res.send(svg);
-  } catch (e) {
-    res.status(404).json({ error: e.message });
   }
 });
 

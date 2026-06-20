@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Icon } from '@iconify/react';
+import Icon from '../components/Icon';
 import { HexColorPicker } from 'react-colorful';
 import { Download, Copy, Heart, ArrowLeft, Check, Share2, ChevronDown } from 'lucide-react';
 import { getIconSVG } from '../utils/iconSearch';
@@ -322,12 +322,14 @@ export default function IconDetailPage() {
           <div className="editor-panel">
             <h3>Use in Code</h3>
             <div className="code-block">
-              <span className="code-comment">{'// With @iconify/react'}</span><br />
+              <span className="code-comment">{'// Icon786 React component'}</span><br />
               <span className="code-keyword">import</span>
-              {' { Icon } '}
+              {' Icon '}
               <span className="code-keyword">from</span>
               {' '}
-              <span className="code-string">'@iconify/react'</span>
+              <span className="code-string">'@icon786/icons/react'</span>
+              {' '}
+              <span className="code-comment">{'// npm package (coming soon)'}</span>
               <br /><br />
               <span style={{ color: '#d4d4d4' }}>{'<'}</span>
               <span className="code-tag">Icon</span>

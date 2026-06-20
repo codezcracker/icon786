@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Icon } from '@iconify/react';
+import Icon from '../components/Icon';
 import { Search, X, Download, Trash2, Plus, Type, Check } from 'lucide-react';
 import { searchIcons, getIconSVG } from '../utils/iconSearch';
 import { apiUrl, hasBackend } from '../utils/api';

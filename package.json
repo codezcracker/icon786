@@ -9,7 +9,8 @@
     "install:all": "cd frontend && npm install --include=dev && cd ../backend && npm install",
     "build": "cd frontend && npm run build",
     "start": "node backend/src/index.js",
-    "render:build": "npm run install:all && npm run build"
+    "render:build": "npm run install:all && npm run build",
+    "vendor:icons": "node scripts/vendor-icons.js"
   },
   "engines": {
     "node": ">=18"
