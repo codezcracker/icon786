@@ -29,7 +29,7 @@ One **Web Service** runs React + Express + API on the same server.
 
 No `VITE_API_URL` needed — frontend and API share the same origin.
 
-**Icons are self-hosted:** the backend reads from `@iconify/json` (~400MB in `node_modules`). No calls to `api.iconify.design` at runtime. If Iconify ever shuts down their API, your app still works as long as you keep the JSON package (or copy it into your repo).
+**Icons are fully self-hosted:** the backend reads from `@iconify/json` (~400MB in `node_modules`). Browse, search, download, export, and font generation use your server only — no Iconify API, SVG Repo, or other external icon services at runtime.
 
 ## Local production test
 

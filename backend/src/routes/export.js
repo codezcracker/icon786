@@ -1,9 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sharp = require('sharp');
-const fetch = require('node-fetch');
-
-const ICONIFY_API = 'https://api.iconify.design';
+const localIcons = require('../services/localIcons');
 const { isPermissivePrefix } = require('../utils/permissiveLicenses');
 
 function rejectIfBlocked(prefix, res) {
@@ -17,11 +15,9 @@ function rejectIfBlocked(prefix, res) {
 }
 
 async function fetchSVG(prefix, name, color, size) {
-  const response = await fetch(
-    `${ICONIFY_API}/${prefix}/${name}.svg?color=${encodeURIComponent(color)}&width=${size}&height=${size}`
-  );
-  if (!response.ok) throw new Error('Failed to fetch icon SVG');
-  return response.buffer();
+  const svg = localIcons.getIconSVG(prefix, name, { color, width: size, height: size });
+  if (!svg) throw new Error('Failed to get icon SVG');
+  return Buffer.from(svg, 'utf8');
 }
 
 // Export as PNG

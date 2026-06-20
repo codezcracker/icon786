@@ -59,23 +59,6 @@ export async function searchIcons(query, prefix, offset = 0, limit = 60) {
   return full.slice(offset, offset + limit);
 }
 
-let svgRepoCache = {};
-export async function searchSvgRepo(query, start = 0, limit = 20) {
-  const key = `${query}::${start}::${limit}`;
-  if (svgRepoCache[key]) return svgRepoCache[key];
-  try {
-    const params = new URLSearchParams({ q: query || 'icon', limit: String(limit), start: String(start) });
-    const res = await fetch(`${apiUrl('/api/icons/svgrepo')}?${params}`);
-    if (!res.ok) throw new Error('svgrepo failed');
-    const data = await res.json();
-    svgRepoCache[key] = data;
-    return data;
-  } catch (e) {
-    console.warn('SVG Repo fetch failed:', e);
-    return { configured: true, icons: [], next: null, error: e.message };
-  }
-}
-
 export async function getIconSVG(prefix, name, color = 'currentColor') {
   try {
     const params = new URLSearchParams({ color });

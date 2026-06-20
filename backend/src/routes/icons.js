@@ -1,35 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const fetch = require('node-fetch');
 const localIcons = require('../services/localIcons');
 const { assertPermissivePrefix, PERMISSIVE_STATS } = require('../utils/permissiveLicenses');
-
-const SVGAPI_KEY = process.env.SVGAPI_KEY || '';
-
-router.get('/svgrepo', async (req, res) => {
-  try {
-    if (!SVGAPI_KEY) {
-      return res.json({ configured: false, icons: [], next: null });
-    }
-    const { q = '', limit = 20, start = 0 } = req.query;
-    const lim = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 20);
-    const params = new URLSearchParams({ search: q || 'icon', limit: String(lim), start: String(start) });
-    const url = `https://api.svgapi.com/v1/${SVGAPI_KEY}/list/?${params}`;
-    const r = await fetch(url);
-    if (!r.ok) throw new Error(`svgapi ${r.status}`);
-    const data = await r.json();
-    const icons = (data.icons || []).map((it) => ({
-      id: it.id || it.slug,
-      title: it.title || it.slug || it.id,
-      url: it.url,
-      source: 'svgrepo',
-    }));
-    res.json({ configured: true, icons, next: data.next || null, total: data.total || null });
-  } catch (e) {
-    console.error('svgrepo error:', e.message);
-    res.status(500).json({ configured: true, error: e.message, icons: [] });
-  }
-});
 
 router.get('/catalog-stats', (_req, res) => {
   res.json(PERMISSIVE_STATS);

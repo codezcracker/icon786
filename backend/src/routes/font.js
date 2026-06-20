@@ -1,12 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const fetch = require('node-fetch');
 const archiver = require('archiver');
 const opentype = require('opentype.js');
 const sharp = require('sharp');
 const potrace = require('potrace');
-
-const ICONIFY_API = 'https://api.iconify.design';
+const localIcons = require('../services/localIcons');
 const { isPermissivePrefix } = require('../utils/permissiveLicenses');
 
 // ────────────────────────────────────────────────────────────────
@@ -187,12 +185,15 @@ router.post('/generate', async (req, res) => {
         const cssClass = name.replace(/[^a-z0-9]/gi, '-').toLowerCase();
         const unicodeStr = unicode.toString(16).toUpperCase();
         try {
-          const r = await fetch(`${ICONIFY_API}/${prefix}/${name}.svg?color=%23000000&width=${RENDER_SIZE}&height=${RENDER_SIZE}`, { timeout: 9000 });
-          if (!r.ok) throw new Error(`HTTP ${r.status}`);
-          const svgStr = await r.text();
+          const svgStr = localIcons.getIconSVG(prefix, name, {
+            color: '#000000',
+            width: RENDER_SIZE,
+            height: RENDER_SIZE,
+          });
+          if (!svgStr) throw new Error('Icon not found');
           return { iconId, prefix, name, unicode, cssClass, unicodeStr, svgStr, ok: true };
         } catch (e) {
-          console.warn(`  ✗ fetch ${iconId}: ${e.message}`);
+          console.warn(`  ✗ load ${iconId}: ${e.message}`);
           return { iconId, ok: false };
         }
       })
