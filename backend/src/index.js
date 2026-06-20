@@ -37,13 +37,15 @@ if (!serveFrontend) {
 }
 app.use(express.json({ limit: '10mb' }));
 
-// Rate limiting
-const limiter = rateLimit({
+// Rate-limit heavy endpoints only — icon SVG/search are self-hosted (like a CDN)
+const writeLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 500,
+  max: 60,
   message: { error: 'Too many requests, please try again later.' },
 });
-app.use(limiter);
+
+app.use('/api/font', writeLimiter);
+app.use('/api/export', writeLimiter);
 
 // Routes
 app.use('/api/icons', iconRoutes);
