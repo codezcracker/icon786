@@ -1,17 +1,22 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Icon from '../components/Icon';
 import { Search, SlidersHorizontal, X, Grid3X3, Grid2X2, Heart } from 'lucide-react';
-import { searchIcons, getAllCollections } from '../utils/iconSearch';
+import { searchIcons, fetchIconBatch, getAllCollections } from '../utils/iconSearch';
 
 const PAGE_SIZE = 60;
+const SEARCH_DEBOUNCE_MS = 300;
 
 export default function BrowsePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const [query, setQuery] = useState(searchParams.get('q') || '');
+  const [debouncedQuery, setDebouncedQuery] = useState(query);
   const [results, setResults] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [svgMap, setSvgMap] = useState({});
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
@@ -20,8 +25,8 @@ export default function BrowsePage() {
   const [showFilters, setShowFilters] = useState(false);
   const [favorites, setFavorites] = useState(() => JSON.parse(localStorage.getItem('px_favorites') || '[]'));
   const [setOptions, setSetOptions] = useState([]);
+  const searchSeq = useRef(0);
 
-  // Load the full live list of every collection for the filter dropdown
   useEffect(() => {
     getAllCollections().then((cols) => {
       if (cols.length) {
@@ -33,23 +38,59 @@ export default function BrowsePage() {
     });
   }, []);
 
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(query), SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(t);
+  }, [query]);
+
   const doSearch = useCallback(async (q, set, pg) => {
+    const seq = ++searchSeq.current;
     setLoading(true);
     try {
-      const icons = await searchIcons(q || '', set === 'all' ? null : set, pg * PAGE_SIZE, PAGE_SIZE);
-      if (pg === 0) setResults(icons);
-      else setResults((prev) => [...prev, ...icons]);
+      const prefix = set === 'all' ? null : set;
+      const { icons, suggestions: sug, total } = await searchIcons(q || '', prefix, pg * PAGE_SIZE, PAGE_SIZE);
+      if (seq !== searchSeq.current) return;
+
+      if (pg === 0) {
+        setResults(icons);
+        setSuggestions(
+          (sug || []).filter((s) => s.toLowerCase() !== (q || '').trim().toLowerCase())
+        );
+        setTotalCount(total || icons.length);
+      } else {
+        setResults((prev) => [...prev, ...icons]);
+      }
       setHasMore(icons.length === PAGE_SIZE);
+
+      if (icons.length) {
+        const batch = await fetchIconBatch(icons);
+        if (seq === searchSeq.current) {
+          setSvgMap((prev) => ({ ...prev, ...batch }));
+        }
+      }
     } catch (e) { console.error(e); }
-    setLoading(false);
+    if (seq === searchSeq.current) setLoading(false);
   }, []);
 
-  useEffect(() => { setPage(0); doSearch(query, selectedSet, 0); }, [query, selectedSet, doSearch]);
-  useEffect(() => { if (page > 0) doSearch(query, selectedSet, page); }, [page, query, selectedSet, doSearch]);
+  useEffect(() => {
+    setPage(0);
+    doSearch(debouncedQuery, selectedSet, 0);
+  }, [debouncedQuery, selectedSet, doSearch]);
+
+  useEffect(() => {
+    if (page > 0) doSearch(debouncedQuery, selectedSet, page);
+  }, [page, debouncedQuery, selectedSet, doSearch]);
 
   const handleSearch = (e) => {
     e.preventDefault();
+    setDebouncedQuery(query);
     setSearchParams(query ? { q: query } : {});
+  };
+
+  const applySuggestion = (term) => {
+    setQuery(term);
+    setDebouncedQuery(term);
+    setSearchParams({ q: term });
   };
 
   const toggleFav = (id, e) => {
@@ -60,6 +101,7 @@ export default function BrowsePage() {
   };
 
   const iconSize = gridSize === 'sm' ? 20 : gridSize === 'md' ? 26 : 34;
+  const showingCount = totalCount > results.length ? `${results.length} of ${totalCount}` : `${results.length}`;
 
   return (
     <div className="browse-page">
@@ -68,7 +110,6 @@ export default function BrowsePage() {
         <p>Search, edit, and download icons in any format.</p>
       </div>
 
-      {/* Search row */}
       <div className="search-row">
         <form onSubmit={handleSearch} className="input-wrap flex-1">
           <span className="input-icon"><Search size={17} /></span>
@@ -80,7 +121,7 @@ export default function BrowsePage() {
             className="input input-with-icon input-with-clear"
           />
           {query && (
-            <button type="button" className="input-clear" onClick={() => setQuery('')}>
+            <button type="button" className="input-clear" onClick={() => { setQuery(''); setDebouncedQuery(''); setSearchParams({}); }}>
               <X size={15} />
             </button>
           )}
@@ -95,7 +136,22 @@ export default function BrowsePage() {
         </button>
       </div>
 
-      {/* Filters */}
+      {suggestions.length > 0 && debouncedQuery && (
+        <div className="search-suggestions">
+          <span className="search-suggestions__label">Did you mean:</span>
+          {suggestions.map((term) => (
+            <button
+              key={term}
+              type="button"
+              className="search-suggestions__chip"
+              onClick={() => applySuggestion(term)}
+            >
+              {term}
+            </button>
+          ))}
+        </div>
+      )}
+
       {showFilters && (
         <div className="filters-panel">
           <div className="filters-panel__grid">
@@ -155,12 +211,11 @@ export default function BrowsePage() {
         </div>
       )}
 
-      {/* Results bar */}
       <div className="results-bar">
         <span>
           {loading && page === 0
             ? 'Searching…'
-            : `${results.length} icons${query ? ` for "${query}"` : ''}`}
+            : `${showingCount} icons${debouncedQuery ? ` for "${debouncedQuery}"` : ''}`}
         </span>
         {selectedSet !== 'all' && (
           <button className="results-bar__clear" onClick={() => setSelectedSet('all')}>
@@ -199,7 +254,11 @@ export default function BrowsePage() {
                       fill={isFav ? 'var(--primary)' : 'none'}
                     />
                   </button>
-                  <Icon icon={iconId} style={{ fontSize: iconSize, color: 'var(--dark)' }} />
+                  <Icon
+                    icon={iconId}
+                    svgContent={svgMap[iconId]}
+                    style={{ fontSize: iconSize, color: 'var(--dark)' }}
+                  />
                   <span className="icon-item__name">
                     {name.length > 14 ? name.slice(0, 14) + '…' : name}
                   </span>
@@ -231,6 +290,20 @@ export default function BrowsePage() {
           <Icon icon="ph:magnifying-glass-bold" style={{ fontSize: 56, color: 'var(--gray-300)' }} />
           <h3>No icons found</h3>
           <p>Try a different search term or browse all collections</p>
+          {suggestions.length > 0 && (
+            <div className="search-suggestions search-suggestions--center">
+              {suggestions.map((term) => (
+                <button
+                  key={term}
+                  type="button"
+                  className="search-suggestions__chip"
+                  onClick={() => applySuggestion(term)}
+                >
+                  {term}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

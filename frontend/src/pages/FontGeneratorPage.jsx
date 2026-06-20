@@ -28,7 +28,7 @@ export default function FontGeneratorPage() {
     if (!q.trim()) { setSearchResults([]); return; }
     debounceRef.current = setTimeout(async () => {
       setSearching(true);
-      const icons = await searchIcons(q, null, 0, 40);
+      const { icons } = await searchIcons(q, null, 0, 40);
       setSearchResults(icons);
       setSearching(false);
     }, 300);

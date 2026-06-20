@@ -117,7 +117,7 @@ export default function EditorPage() {
     if (!q.trim()) { setResults([]); return; }
     debounceRef.current = setTimeout(async () => {
       const { searchIcons } = await import('../utils/iconSearch');
-      const icons = await searchIcons(q, null, 0, 32);
+      const { icons } = await searchIcons(q, null, 0, 32);
       setResults(icons);
     }, 300);
   };

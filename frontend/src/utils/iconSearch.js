@@ -12,13 +12,19 @@ import { apiUrl } from './api';
 
 export { PERMISSIVE_STATS };
 
-let fullResultCache = {};
+const fullResultCache = new Map();
+const svgBatchCache = new Map();
+let searchGeneration = 0;
 
-async function fetchFullResults(query, prefix) {
+function cacheKey(query, prefix) {
+  return `${(query || '').trim().toLowerCase()}::${prefix || ''}`;
+}
+
+async function fetchFullResults(query, prefix, generation) {
   const q = (query || '').trim();
 
   if (prefix && !isPermissivePrefix(prefix)) {
-    return [];
+    return { icons: [], suggestions: [] };
   }
 
   if (!q && prefix) {
@@ -30,41 +36,91 @@ async function fetchFullResults(query, prefix) {
         ...(data.uncategorized || []),
         ...(data.categories ? Object.values(data.categories).flat() : []),
       ];
-      return names.map((n) => `${prefix}:${n}`);
+      return { icons: names.map((n) => `${prefix}:${n}`), suggestions: [] };
     } catch (e) {
       console.warn('Collection fetch failed:', e);
-      return [];
+      return { icons: [], suggestions: [] };
     }
   }
 
   try {
-    const params = new URLSearchParams({ q: q || 'home', limit: '999' });
+    const params = new URLSearchParams({ limit: '999' });
+    if (q) params.set('q', q);
     if (prefix) params.set('prefix', prefix);
     const res = await fetch(`${apiUrl('/api/icons/search')}?${params}`);
     if (!res.ok) throw new Error('search failed');
     const data = await res.json();
-    return data.icons || [];
+    if (generation !== searchGeneration) return null;
+    return {
+      icons: data.icons || [],
+      suggestions: data.suggestions || [],
+    };
   } catch (e) {
     console.warn('Search failed:', e);
-    return [];
+    return { icons: [], suggestions: [] };
   }
 }
 
 export async function searchIcons(query, prefix, offset = 0, limit = 60) {
-  const cacheKey = `${query || ''}::${prefix || ''}`;
-  if (!fullResultCache[cacheKey]) {
-    fullResultCache[cacheKey] = await fetchFullResults(query, prefix);
+  const key = cacheKey(query, prefix);
+  if (!fullResultCache.has(key)) {
+    const generation = searchGeneration;
+    const result = await fetchFullResults(query, prefix, generation);
+    if (result) fullResultCache.set(key, result);
   }
-  const full = fullResultCache[cacheKey];
-  return full.slice(offset, offset + limit);
+  const cached = fullResultCache.get(key) || { icons: [], suggestions: [] };
+  return {
+    icons: cached.icons.slice(offset, offset + limit),
+    suggestions: offset === 0 ? cached.suggestions : [],
+    total: cached.icons.length,
+  };
+}
+
+export function invalidateSearchCache() {
+  searchGeneration += 1;
+  fullResultCache.clear();
+}
+
+export async function fetchIconBatch(iconIds) {
+  const missing = iconIds.filter((id) => id && !svgBatchCache.has(id));
+  if (missing.length) {
+    try {
+      const res = await fetch(apiUrl('/api/icons/batch-svg'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ icons: missing }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        for (const [id, svg] of Object.entries(data.svgs || {})) {
+          svgBatchCache.set(id, svg);
+        }
+      }
+    } catch (e) {
+      console.warn('Batch SVG fetch failed:', e);
+    }
+  }
+  const out = {};
+  for (const id of iconIds) {
+    if (svgBatchCache.has(id)) out[id] = svgBatchCache.get(id);
+  }
+  return out;
+}
+
+export function getCachedSvg(iconId) {
+  return svgBatchCache.get(iconId) || null;
 }
 
 export async function getIconSVG(prefix, name, color = 'currentColor') {
+  const id = `${prefix}:${name}`;
+  if (svgBatchCache.has(id)) return svgBatchCache.get(id);
   try {
     const params = new URLSearchParams({ color });
     const res = await fetch(`${apiUrl(`/api/icons/svg/${prefix}/${name}`)}?${params}`);
     if (!res.ok) throw new Error('Failed to get SVG');
-    return await res.text();
+    const text = await res.text();
+    svgBatchCache.set(id, text);
+    return text;
   } catch (e) {
     console.error(e);
     return null;

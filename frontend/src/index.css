@@ -1202,6 +1202,38 @@ input[type="range"]::-moz-range-thumb {
   margin-bottom: 16px;
 }
 .search-row .input-wrap { flex: 1; }
+
+.search-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.search-suggestions--center {
+  justify-content: center;
+  margin-top: 16px;
+}
+.search-suggestions__label {
+  font-size: 13px;
+  color: var(--gray-500);
+  font-weight: 600;
+}
+.search-suggestions__chip {
+  padding: 6px 12px;
+  border: 1px solid var(--gray-200);
+  border-radius: 999px;
+  background: var(--white);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.search-suggestions__chip:hover {
+  background: var(--primary-light, #ffe4ec);
+  border-color: var(--primary);
+}
 .search-row .input { height: 48px; }
 
 .filters-panel {
