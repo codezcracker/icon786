@@ -13,7 +13,6 @@ const serveFrontend = isProd && fs.existsSync(frontendDist);
 const iconRoutes = require('./routes/icons');
 const exportRoutes = require('./routes/export');
 const fontRoutes = require('./routes/font');
-const localIcons = require('./services/localIcons');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -84,6 +83,5 @@ app.listen(PORT, () => {
   console.log(`\n🚀 Icon786 running at http://localhost:${PORT}`);
   if (serveFrontend) console.log('📦 Serving frontend from frontend/dist');
   console.log(`📖 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`🗂  Icons: local library (@iconify/json, ${require('./data/permissive-prefixes.json').setCount} sets)\n`);
-  localIcons.getSearchIndex().catch((e) => console.warn('Icon index preload failed:', e.message));
+  console.log(`🗂  Icons: local library (@iconify/json, ${require('./data/permissive-prefixes.json').setCount} sets, lazy search)\n`);
 });

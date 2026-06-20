@@ -4,22 +4,44 @@ const collectionsMeta = require('@iconify/json/collections.json');
 const catalog = require('../data/permissive-prefixes.json');
 const { isPermissivePrefix } = require('../utils/permissiveLicenses');
 
+const MAX_CACHE = 4;
 const iconSetCache = new Map();
-let searchIndex = null;
-let searchIndexPromise = null;
 
-function loadIconSet(prefix) {
+// Search larger sets first so common queries return useful results quickly
+const PREFIXES_BY_SIZE = [...catalog.prefixes].sort(
+  (a, b) => (collectionsMeta[b]?.total || 0) - (collectionsMeta[a]?.total || 0)
+);
+
+function trimCache() {
+  while (iconSetCache.size > MAX_CACHE) {
+    const oldest = iconSetCache.keys().next().value;
+    iconSetCache.delete(oldest);
+  }
+}
+
+function loadIconSet(prefix, { retain = true } = {}) {
   if (!isPermissivePrefix(prefix)) return null;
-  if (iconSetCache.has(prefix)) return iconSetCache.get(prefix);
+  if (iconSetCache.has(prefix)) {
+    const hit = iconSetCache.get(prefix);
+    iconSetCache.delete(prefix);
+    if (retain) iconSetCache.set(prefix, hit);
+    return hit;
+  }
   try {
     const data = JSON.parse(fs.readFileSync(locate(prefix), 'utf8'));
-    iconSetCache.set(prefix, data);
+    if (retain) {
+      iconSetCache.set(prefix, data);
+      trimCache();
+    }
     return data;
   } catch (e) {
     console.warn(`Failed to load icon set "${prefix}":`, e.message);
-    iconSetCache.set(prefix, null);
     return null;
   }
+}
+
+function releaseIconSet(prefix) {
+  iconSetCache.delete(prefix);
 }
 
 function resolveIcon(data, name) {
@@ -32,30 +54,21 @@ function resolveIcon(data, name) {
   return null;
 }
 
-function buildSearchIndex() {
-  const entries = [];
-  for (const prefix of catalog.prefixes) {
-    const data = loadIconSet(prefix);
-    if (!data) continue;
-    const add = (name) => entries.push({ id: `${prefix}:${name}`, name, prefix });
-    Object.keys(data.icons || {}).forEach(add);
-    Object.keys(data.aliases || {}).forEach(add);
+function searchInSet(prefix, q, max) {
+  const data = loadIconSet(prefix, { retain: false });
+  if (!data) return [];
+  const names = [
+    ...Object.keys(data.icons || {}),
+    ...Object.keys(data.aliases || {}),
+  ];
+  const results = [];
+  for (const name of names) {
+    if (!q || name.toLowerCase().includes(q) || prefix.includes(q)) {
+      results.push(`${prefix}:${name}`);
+      if (results.length >= max) break;
+    }
   }
-  return entries;
-}
-
-function getSearchIndex() {
-  if (searchIndex) return Promise.resolve(searchIndex);
-  if (!searchIndexPromise) {
-    searchIndexPromise = Promise.resolve().then(() => {
-      console.log('Building local icon search index…');
-      const start = Date.now();
-      searchIndex = buildSearchIndex();
-      console.log(`Icon index ready: ${searchIndex.length} icons (${Date.now() - start}ms)`);
-      return searchIndex;
-    });
-  }
-  return searchIndexPromise;
+  return results;
 }
 
 async function search(query, prefix, limit = 999) {
@@ -64,25 +77,15 @@ async function search(query, prefix, limit = 999) {
 
   if (prefix) {
     if (!isPermissivePrefix(prefix)) return [];
-    const data = loadIconSet(prefix);
-    if (!data) return [];
-    const names = [
-      ...Object.keys(data.icons || {}),
-      ...Object.keys(data.aliases || {}),
-    ];
-    return names
-      .filter((n) => !q || n.toLowerCase().includes(q))
-      .slice(0, max)
-      .map((n) => `${prefix}:${n}`);
+    return searchInSet(prefix, q, max);
   }
 
-  const index = await getSearchIndex();
+  // Scan one icon set at a time — low memory, safe on Render free tier
   const results = [];
-  for (const entry of index) {
-    if (!q || entry.name.toLowerCase().includes(q) || entry.prefix.toLowerCase().includes(q)) {
-      results.push(entry.id);
-      if (results.length >= max) break;
-    }
+  for (const p of PREFIXES_BY_SIZE) {
+    if (results.length >= max) break;
+    const found = searchInSet(p, q, max - results.length);
+    results.push(...found);
   }
   return results;
 }
@@ -154,5 +157,4 @@ module.exports = {
   getCollection,
   getIconsJSON,
   getIconSVG,
-  getSearchIndex,
 };
