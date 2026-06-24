@@ -86,4 +86,12 @@ app.listen(PORT, () => {
   if (serveFrontend) console.log('📦 Serving frontend from frontend/dist');
   console.log(`📖 Health check: http://localhost:${PORT}/api/health`);
   console.log(`🗂  Icons: @icon786/icons (${require('./data/permissive-prefixes.json').setCount} sets, lazy search)\n`);
+
+  // Warm browse cache so first visitor gets 60 icons instantly
+  setImmediate(() => {
+    const localIcons = require('./services/localIcons');
+    localIcons.search('', null, 60)
+      .then(() => console.log('✓ Browse icon cache ready'))
+      .catch(() => {});
+  });
 });

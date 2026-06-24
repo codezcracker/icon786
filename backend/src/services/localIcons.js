@@ -13,13 +13,53 @@ const PREFIXES_BY_SIZE = [...catalog.prefixes].sort(
   (a, b) => (collectionsMeta[b]?.total || 0) - (collectionsMeta[a]?.total || 0)
 );
 
-const DEFAULT_BROWSE = [
-  'mdi:home', 'mdi:account', 'mdi:magnify', 'mdi:cog', 'mdi:heart', 'mdi:star',
-  'ph:house-bold', 'ph:user-bold', 'ph:magnifying-glass-bold', 'ph:gear-bold',
-  'tabler:home', 'tabler:user', 'tabler:search', 'tabler:settings',
-  'lucide:home', 'lucide:user', 'lucide:search', 'lucide:settings',
-  'ri:home-line', 'ri:user-line', 'ri:search-line', 'ri:settings-line',
+const DEFAULT_BROWSE_PREFIXES = ['mdi', 'ph', 'tabler', 'lucide', 'ri', 'material-symbols', 'heroicons', 'solar'];
+const DEFAULT_BROWSE_TERMS = [
+  'home', 'account', 'magnify', 'cog', 'heart', 'star', 'arrow-right', 'menu', 'close', 'check',
+  'email', 'phone', 'camera', 'pencil', 'delete', 'download', 'upload', 'file', 'folder', 'lock',
+  'plus', 'minus', 'eye', 'calendar', 'clock', 'bell', 'share', 'link', 'image', 'video',
+  'music', 'cart', 'wallet', 'wifi', 'cloud', 'sun', 'moon', 'bolt', 'gift', 'bookmark',
+  'flag', 'map', 'location', 'car', 'plane', 'chat', 'comment', 'shield', 'key', 'login',
+  'logout', 'refresh', 'play', 'pause', 'volume', 'microphone', 'printer', 'database', 'code', 'terminal',
 ];
+
+const DEFAULT_BROWSE_POOL = 300;
+
+let defaultBrowseCache = null;
+
+function getDefaultBrowse(max = 60) {
+  if (!defaultBrowseCache) {
+    const results = [];
+    const seen = new Set();
+    for (const term of DEFAULT_BROWSE_TERMS) {
+      for (const prefix of DEFAULT_BROWSE_PREFIXES) {
+        if (results.length >= DEFAULT_BROWSE_POOL) break;
+        const hits = searchInSet(prefix, [term], 2);
+        for (const { id } of hits) {
+          if (!seen.has(id)) {
+            seen.add(id);
+            results.push(id);
+            if (results.length >= DEFAULT_BROWSE_POOL) break;
+          }
+        }
+      }
+      if (results.length >= DEFAULT_BROWSE_POOL) break;
+    }
+    defaultBrowseCache = results;
+  }
+  return defaultBrowseCache.slice(0, max);
+}
+
+function buildSvgFromIcon(data, icon, { color = 'currentColor', width, height } = {}) {
+  if (!icon || !data) return null;
+  const w = parseInt(width, 10) || icon.width || data.width || 24;
+  const h = parseInt(height, 10) || icon.height || data.height || 24;
+  let body = icon.body;
+  if (color && color !== 'currentColor') {
+    body = body.replace(/currentColor/g, color);
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${body}</svg>`;
+}
 
 function trimCache() {
   while (iconSetCache.size > MAX_CACHE) {
@@ -112,7 +152,7 @@ async function search(query, prefix, limit = 999) {
   const max = Math.min(Math.max(parseInt(limit, 10) || 999, 1), 9999);
 
   if (!q && !prefix) {
-    return { icons: DEFAULT_BROWSE, suggestions: [], query: q };
+    return { icons: getDefaultBrowse(max), suggestions: [], query: q };
   }
 
   const terms = expandQuery(q);
@@ -182,30 +222,33 @@ function getIconsJSON(prefix, names) {
   };
 }
 
-function getIconSVG(prefix, name, { color = 'currentColor', width, height } = {}) {
+function getIconSVG(prefix, name, opts = {}) {
   const data = loadIconSet(prefix);
   const icon = resolveIcon(data, name);
   if (!icon) return null;
-
-  const w = parseInt(width, 10) || icon.width || data.width || 24;
-  const h = parseInt(height, 10) || icon.height || data.height || 24;
-  let body = icon.body;
-  if (color && color !== 'currentColor') {
-    body = body.replace(/currentColor/g, color);
-  }
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${body}</svg>`;
+  return buildSvgFromIcon(data, icon, opts);
 }
 
 function getBatchSVG(iconIds) {
-  const svgs = {};
+  const byPrefix = new Map();
   for (const id of iconIds) {
     if (!id || typeof id !== 'string' || !id.includes(':')) continue;
     const colon = id.indexOf(':');
     const prefix = id.slice(0, colon);
     const name = id.slice(colon + 1);
-    const svg = getIconSVG(prefix, name);
-    if (svg) svgs[id] = svg;
+    if (!byPrefix.has(prefix)) byPrefix.set(prefix, []);
+    byPrefix.get(prefix).push({ id, name });
+  }
+
+  const svgs = {};
+  for (const [prefix, items] of byPrefix) {
+    const data = loadIconSet(prefix);
+    if (!data) continue;
+    for (const { id, name } of items) {
+      const icon = resolveIcon(data, name);
+      const svg = buildSvgFromIcon(data, icon);
+      if (svg) svgs[id] = svg;
+    }
   }
   return svgs;
 }

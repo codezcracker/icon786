@@ -46,30 +46,33 @@ export default function BrowsePage() {
   const doSearch = useCallback(async (q, set, pg) => {
     const seq = ++searchSeq.current;
     setLoading(true);
+    let icons = [];
     try {
       const prefix = set === 'all' ? null : set;
-      const { icons, suggestions: sug, total } = await searchIcons(q || '', prefix, pg * PAGE_SIZE, PAGE_SIZE);
+      const result = await searchIcons(q || '', prefix, pg * PAGE_SIZE, PAGE_SIZE);
+      icons = result.icons;
       if (seq !== searchSeq.current) return;
 
       if (pg === 0) {
         setResults(icons);
         setSuggestions(
-          (sug || []).filter((s) => s.toLowerCase() !== (q || '').trim().toLowerCase())
+          (result.suggestions || []).filter((s) => s.toLowerCase() !== (q || '').trim().toLowerCase())
         );
-        setTotalCount(total || icons.length);
+        setTotalCount(result.total || icons.length);
       } else {
         setResults((prev) => [...prev, ...icons]);
       }
       setHasMore(icons.length === PAGE_SIZE);
+    } catch (e) { console.error(e); }
+    if (seq === searchSeq.current) setLoading(false);
 
-      if (icons.length) {
-        const batch = await fetchIconBatch(icons);
+    if (icons.length && seq === searchSeq.current) {
+      fetchIconBatch(icons).then((batch) => {
         if (seq === searchSeq.current) {
           setSvgMap((prev) => ({ ...prev, ...batch }));
         }
-      }
-    } catch (e) { console.error(e); }
-    if (seq === searchSeq.current) setLoading(false);
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -241,7 +244,7 @@ export default function BrowsePage() {
               return (
                 <div
                   key={iconId}
-                  className="icon-item"
+                  className={`icon-item${svgMap[iconId] ? '' : ' icon-item--loading'}`}
                   onClick={() => navigate(`/icon/${prefix}/${encodeURIComponent(name)}`)}
                 >
                   <button

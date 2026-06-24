@@ -1322,6 +1322,19 @@ input[type="range"]::-moz-range-thumb {
 .icon-item:hover .icon-item__fav { opacity: 1; }
 .icon-item__fav.is-fav { opacity: 1; }
 
+.icon-item--loading .icon786 {
+  width: 1em;
+  height: 1em;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 50%, var(--gray-100) 75%);
+  background-size: 200% 100%;
+  animation: icon-shimmer 1.2s ease-in-out infinite;
+}
+@keyframes icon-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 .load-more {
   height: 80px;
   display: flex;
