@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Icon from '../components/Icon';
 import { HexColorPicker } from 'react-colorful';
-import { Search, Download, RotateCcw } from 'lucide-react';
+import { Search, Download, RotateCcw, Copy, Check, Share2 } from 'lucide-react';
 import { getIconSVG } from '../utils/iconSearch';
 import {
   exportSvgBlob,
@@ -45,7 +46,7 @@ const SHAPES = [
   { id: 'circle', label: 'Circle', style: { width: 18, height: 18, background: '#6B7280', borderRadius: '50%' } },
 ];
 
-const BG_PRESETS = ['#ffffff', '#F5F4F2', '#1C1C1E', '#E8395A', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6'];
+const BG_PRESETS = ['transparent', '#ffffff', '#F5F4F2', '#1C1C1E', '#E8395A', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6'];
 
 // SVG-embeddable keyframes; applied to a group with class "px-anim".
 const ANIMATIONS = [
@@ -82,6 +83,7 @@ function gradCoords(angle) {
 }
 
 export default function EditorPage() {
+  const [searchParams] = useSearchParams();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [selectedIcon, setSelectedIcon] = useState('mdi:home');
@@ -93,7 +95,7 @@ export default function EditorPage() {
   const [gradTo, setGradTo] = useState('#F59E0B');
   const [gradAngle, setGradAngle] = useState(45);
 
-  const [bgColor, setBgColor] = useState('#ffffff');
+  const [bgColor, setBgColor] = useState('transparent');
   const [bgShape, setBgShape] = useState('none');
   const [iconScale, setIconScale] = useState(100);
   const [exportSize, setExportSize] = useState(DEFAULT_EXPORT_SIZE);
@@ -102,6 +104,7 @@ export default function EditorPage() {
   const [exportHeight, setExportHeight] = useState('');
   const [canvasSize, setCanvasSize] = useState(100);
   const [rotation, setRotation] = useState(0);
+  const [previewSize, setPreviewSize] = useState(100);
 
   const [animation, setAnimation] = useState('none');
   const [animSpeed, setAnimSpeed] = useState(1.5);
@@ -109,7 +112,21 @@ export default function EditorPage() {
   const [showIconColor, setShowIconColor] = useState(false);
   const [showBgColor, setShowBgColor] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [copied, setCopied] = useState('');
   const debounceRef = useRef(null);
+
+  useEffect(() => {
+    const icon = searchParams.get('icon');
+    if (icon && icon.includes(':')) {
+      setSelectedIcon(icon);
+    }
+  }, [searchParams]);
+
+  const copyText = async (text, key) => {
+    await navigator.clipboard.writeText(text);
+    setCopied(key);
+    setTimeout(() => setCopied(''), 2000);
+  };
 
   const handleSearch = (q) => {
     setQuery(q);
@@ -153,7 +170,7 @@ export default function EditorPage() {
     const painted = inner.replace(/currentColor/g, paint);
 
     let bgEl = '';
-    if (bgShape !== 'none') {
+    if (bgShape !== 'none' && bgColor !== 'transparent') {
       const r =
         bgShape === 'circle'
           ? Math.min(vb.width, vb.height) / 2
@@ -197,7 +214,7 @@ export default function EditorPage() {
         padding: exportPadding,
         width: exportWidth,
         height: exportHeight,
-        background: bgShape === 'none' ? null : bgColor,
+        background: bgColor === 'transparent' || bgShape === 'none' ? null : bgColor,
       });
       const trigger = (blob, ext) => downloadBlob(blob, `${nm}-edited.${ext}`);
       if (fmt === 'svg') trigger(exportSvgBlob(svg, exportOpts), 'svg');
@@ -211,15 +228,18 @@ export default function EditorPage() {
   const reset = () => {
     setFillType('solid'); setIconColor('#E8395A');
     setGradFrom('#E8395A'); setGradTo('#F59E0B'); setGradAngle(45);
-    setBgColor('#ffffff'); setBgShape('none');
+    setBgColor('transparent'); setBgShape('none');
     setIconScale(100); setExportSize(DEFAULT_EXPORT_SIZE); setExportPadding(0);
     setExportWidth(''); setExportHeight(''); setCanvasSize(100); setRotation(0);
+    setPreviewSize(100);
     setAnimation('none'); setAnimSpeed(1.5);
   };
 
   const displayIcons = results.length > 0 ? results : DEFAULT_ICONS;
-  const previewSz = canvasSize * 2.8;
+  const previewSz = canvasSize * 2.8 * (previewSize / 100);
   const previewSvg = buildComposed();
+  const checkerBg = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14'%3E%3Crect width='7' height='7' fill='%23e8e8e8'/%3E%3Crect x='7' y='7' width='7' height='7' fill='%23e8e8e8'/%3E%3C/svg%3E")`;
+  const previewBg = bgColor === 'transparent' ? checkerBg : bgColor;
 
   return (
     <div className="editor-page">
@@ -262,7 +282,19 @@ export default function EditorPage() {
           <div className="editor-canvas-box">
             <div
               className="editor-preview transparency-bg"
-              style={{ minWidth: 120, minHeight: 120, maxWidth: previewSz, maxHeight: previewSz, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20, padding: 12 }}
+              style={{
+                minWidth: 120,
+                minHeight: 120,
+                maxWidth: previewSz,
+                maxHeight: previewSz,
+                borderRadius: 12,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 20,
+                padding: 12,
+                background: previewBg,
+              }}
             >
               {previewSvg
                 ? <div className="editor-live-svg" style={{ maxWidth: '100%', maxHeight: previewSz - 24 }} dangerouslySetInnerHTML={{ __html: previewSvg }} />
@@ -270,6 +302,24 @@ export default function EditorPage() {
             </div>
 
             <p className="editor-icon-name">{selectedIcon}</p>
+
+            <div className="editor-quick-actions">
+              <button
+                className="btn btn-secondary"
+                style={{ flex: 1, fontSize: 13 }}
+                onClick={() => copyText(previewSvg || '', 'svg')}
+                disabled={!previewSvg}
+              >
+                {copied === 'svg' ? <><Check size={13} color="green" /> Copied!</> : <><Copy size={13} /> Copy SVG</>}
+              </button>
+              <button
+                className="btn-icon"
+                title="Copy icon ID"
+                onClick={() => copyText(selectedIcon, 'id')}
+              >
+                {copied === 'id' ? <Check size={15} color="green" /> : <Share2 size={15} color="var(--gray-500)" />}
+              </button>
+            </div>
 
             <ExportOptions
               maxSize={exportSize}
@@ -431,11 +481,16 @@ export default function EditorPage() {
               {BG_PRESETS.map((c) => (
                 <button
                   key={c}
-                  className={`color-swatch${bgColor === c ? ' active' : ''}${c === '#ffffff' ? ' color-swatch-white' : ''}`}
-                  style={{ backgroundColor: c }}
+                  className={`color-swatch${bgColor === c ? ' active' : ''}${c === '#ffffff' || c === 'transparent' ? ' color-swatch-white' : ''}`}
+                  style={{
+                    background: c === 'transparent' ? checkerBg : c,
+                    backgroundSize: c === 'transparent' ? '8px 8px' : undefined,
+                  }}
+                  title={c === 'transparent' ? 'Transparent' : c}
                   onClick={() => setBgColor(c)}
                 />
               ))}
+              <button className="color-swatch color-swatch-edit" onClick={() => { if (bgColor === 'transparent') setBgColor('#ffffff'); setShowBgColor(!showBgColor); setShowIconColor(false); }}>+</button>
             </div>
             {showBgColor && (
               <div className="anim-fade">
@@ -443,6 +498,24 @@ export default function EditorPage() {
                 <input value={bgColor} onChange={(e) => setBgColor(e.target.value)} className="input input-mono" style={{ fontSize: 12, padding: '8px 12px' }} />
               </div>
             )}
+          </div>
+
+          {/* Preview size */}
+          <div className="editor-panel">
+            <div className="editor-panel__header">
+              <span className="editor-panel__title">Preview Size</span>
+            </div>
+            <div className="size-pills">
+              {[60, 80, 100, 120, 150].map((s) => (
+                <button
+                  key={s}
+                  className={`size-pill${previewSize === s ? ' active' : ''}`}
+                  onClick={() => setPreviewSize(s)}
+                >
+                  {s}%
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Sliders */}
@@ -465,6 +538,36 @@ export default function EditorPage() {
               </div>
               <input type="range" min="60" max="130" value={canvasSize} onChange={(e) => setCanvasSize(+e.target.value)} />
             </div>
+          </div>
+
+          {/* Use in code */}
+          <div className="editor-panel">
+            <div className="editor-panel__header">
+              <span className="editor-panel__title">Use in Code</span>
+            </div>
+            <div className="code-block" style={{ fontSize: 12 }}>
+              <span className="code-comment">{'// Icon786 React component'}</span><br />
+              <span className="code-keyword">import</span>
+              {' Icon '}
+              <span className="code-keyword">from</span>
+              {' '}
+              <span className="code-string">'@icon786/icons/react'</span>
+              <br /><br />
+              <span style={{ color: '#d4d4d4' }}>{'<'}</span>
+              <span className="code-tag">Icon</span>
+              {' '}
+              <span className="code-attr">icon</span>
+              {'="'}
+              <span className="code-string">{selectedIcon}</span>
+              {'" />'}
+            </div>
+            <button
+              className="btn btn-secondary btn-full"
+              style={{ marginTop: 12, fontSize: 13 }}
+              onClick={() => copyText(`<Icon icon="${selectedIcon}" />`, 'code')}
+            >
+              {copied === 'code' ? <><Check size={13} color="green" /> Copied!</> : <><Copy size={13} /> Copy Code</>}
+            </button>
           </div>
         </div>
       </div>
