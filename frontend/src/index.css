@@ -1404,6 +1404,30 @@ input[type="range"]::-moz-range-thumb {
   margin-top: 8px;
 }
 
+.icon-detail__actions--top {
+  margin-top: 16px;
+}
+
+.icon-detail__save-panel {
+  background: var(--white);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: var(--radius-2xl);
+  padding: 24px 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+.icon-detail__save-panel h3 {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.icon-detail__save-desc {
+  font-size: 13px;
+  color: var(--gray-500);
+  margin-bottom: 16px;
+}
+
 .icon-detail__edit-hint {
   margin-top: 16px;
   padding-top: 16px;
