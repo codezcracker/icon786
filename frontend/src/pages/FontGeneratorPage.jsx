@@ -356,7 +356,7 @@ ${selected.map((i) => `<div class="item">
             {generated && (
               <div className="font-success" style={{ marginTop: 12 }}>
                 <p><Check size={13} /> ZIP downloaded successfully!</p>
-                <span>TTF · WOFF · CSS · Self-contained HTML demo · Manifest</span>
+                <span>Extract the ZIP, then open <strong>{fontName}-demo.html</strong> to preview icons</span>
               </div>
             )}
 
@@ -373,8 +373,9 @@ ${selected.map((i) => `<div class="item">
                 'Search and select icons to include',
                 'Set your preferred font name',
                 'Click Generate & Download',
-                'Add the CSS file to your project',
-                'Use classes: <i class="myfont-home"></i>',
+                'Extract the ZIP into a folder',
+                'Open the *-demo.html file to preview icons',
+                'Use the CSS + font files in your website',
               ].map((s, i) => (
                 <div key={i} className="font-step">
                   <span className="font-step__num">{i + 1}</span>
