@@ -1,86 +1,73 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { apiUrl } from '../utils/api';
-
-const STORAGE_KEY = 'icon786_ai_settings';
-
-const DEFAULT_SETTINGS = {
-  provider: 'server',
-  model: '',
-  apiKey: '',
-  baseUrl: '',
-};
+import {
+  getApiConfig,
+  setApiConfig,
+  configToAiHeaders,
+  getProviderLabel,
+} from '../utils/aiApiConfig';
 
 const AiContext = createContext(null);
 
 export function AiProvider({ children }) {
-  const [settings, setSettings] = useState(() => {
-    try {
-      return { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') };
-    } catch {
-      return { ...DEFAULT_SETTINGS };
-    }
-  });
-  const [config, setConfig] = useState(null);
+  const [apiConfig, setApiConfigState] = useState(getApiConfig);
+  const [serverConfig, setServerConfig] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [apiConfigOpen, setApiConfigOpen] = useState(false);
   const [initialTab, setInitialTab] = useState('search');
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-  }, [settings]);
+  const refreshConfig = useCallback(() => {
+    setApiConfigState(getApiConfig());
+  }, []);
 
   useEffect(() => {
     fetch(apiUrl('/api/ai/config'))
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => { if (data) setConfig(data); })
+      .then((data) => { if (data) setServerConfig(data); })
       .catch(() => {});
   }, []);
 
-  const updateSettings = useCallback((patch) => {
-    setSettings((prev) => ({ ...prev, ...patch }));
-  }, []);
+  useEffect(() => {
+    const onUpdate = () => refreshConfig();
+    window.addEventListener('icon786:ai-config-updated', onUpdate);
+    return () => window.removeEventListener('icon786:ai-config-updated', onUpdate);
+  }, [refreshConfig]);
 
   const openAi = useCallback((tab = 'search') => {
     setInitialTab(tab);
-    setSettingsOpen(false);
     setModalOpen(true);
   }, []);
 
-  const openAiSettings = useCallback(() => {
-    setSettingsOpen(true);
-    setModalOpen(true);
+  const openApiConfig = useCallback(() => {
+    setApiConfigOpen(true);
   }, []);
 
   const closeAi = useCallback(() => {
     setModalOpen(false);
-    setSettingsOpen(false);
   }, []);
 
-  const aiHeaders = () => {
-    const h = {
-      'Content-Type': 'application/json',
-      'X-AI-Provider': settings.provider || 'server',
-    };
-    if (settings.apiKey) h['X-AI-API-Key'] = settings.apiKey;
-    if (settings.baseUrl) h['X-AI-Base-URL'] = settings.baseUrl;
-    if (settings.model) h['X-AI-Model'] = settings.model;
-    return h;
-  };
+  const aiHeaders = useCallback(
+    () => configToAiHeaders(apiConfig, serverConfig?.models),
+    [apiConfig, serverConfig]
+  );
 
   return (
     <AiContext.Provider
       value={{
-        settings,
-        config,
-        updateSettings,
+        apiConfig,
+        serverConfig,
+        serverAiEnabled: Boolean(serverConfig?.serverAiEnabled),
+        providerLabel: getProviderLabel(apiConfig),
         modalOpen,
-        settingsOpen,
+        apiConfigOpen,
+        setApiConfigOpen,
         initialTab,
         openAi,
-        openAiSettings,
+        openApiConfig,
         closeAi,
-        setSettingsOpen,
         aiHeaders,
+        refreshConfig,
+        setApiConfig,
       }}
     >
       {children}
