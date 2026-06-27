@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Icon from '../components/Icon';
 import { Search, Download, Palette, Type, ArrowRight, Sparkles, Globe, Zap } from 'lucide-react';
+import { useAi } from '../context/AiContext';
 
 // Only use well-known valid Iconify icon IDs
 const FEATURED_ICONS = [
@@ -48,6 +49,12 @@ const FEATURES = [
     bg: '#FFF7ED', color: '#EA580C',
   },
   {
+    icon: <Sparkles size={22} />,
+    title: 'AI Search & Generate',
+    desc: 'Describe what you need in plain English — find icons or generate new ones with AI.',
+    bg: '#FDF4FF', color: '#A855F7',
+  },
+  {
     icon: <Globe size={22} />,
     title: 'Huge Library',
     desc: 'Browse a massive icon library with unified search across every collection.',
@@ -59,6 +66,7 @@ export default function LandingPage() {
   const [query, setQuery] = useState('');
   const [displayIcons, setDisplayIcons] = useState(FEATURED_ICONS.slice(0, 24));
   const navigate = useNavigate();
+  const { openAi } = useAi();
 
   useEffect(() => {
     const shuffled = [...FEATURED_ICONS].sort(() => Math.random() - 0.5);
@@ -114,6 +122,14 @@ export default function LandingPage() {
               </div>
               <button type="submit" className="btn btn-primary">
                 Search
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => openAi('search')}
+                style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+              >
+                <Sparkles size={16} /> AI
               </button>
             </form>
 

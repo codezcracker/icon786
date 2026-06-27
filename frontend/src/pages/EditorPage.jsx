@@ -119,6 +119,13 @@ export default function EditorPage() {
     const icon = searchParams.get('icon');
     if (icon && icon.includes(':')) {
       setSelectedIcon(icon);
+      return;
+    }
+    if (searchParams.get('ai') === '1') {
+      const name = sessionStorage.getItem('icon786_ai_name') || 'ai-icon';
+      if (sessionStorage.getItem('icon786_ai_svg')) {
+        setSelectedIcon(`ai:${name}`);
+      }
     }
   }, [searchParams]);
 
@@ -142,10 +149,22 @@ export default function EditorPage() {
   // Fetch the raw icon (keeping currentColor) once per selection.
   useEffect(() => {
     let cancelled = false;
+    const [pfx, ...rest] = selectedIcon.split(':');
+    const nm = rest.join(':');
+
+    if (pfx === 'ai') {
+      const svg = sessionStorage.getItem('icon786_ai_svg');
+      if (!svg) return;
+      const vb = svg.match(/viewBox="([^"]+)"/);
+      const inner = svg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+      setRawIcon({ inner, viewBox: vb ? vb[1] : '0 0 24 24' });
+      sessionStorage.removeItem('icon786_ai_svg');
+      sessionStorage.removeItem('icon786_ai_name');
+      return () => { cancelled = true; };
+    }
+
     setRawIcon(null);
     (async () => {
-      const [pfx, ...rest] = selectedIcon.split(':');
-      const nm = rest.join(':');
       const svg = await getIconSVG(pfx, nm, 'currentColor');
       if (cancelled || !svg) return;
       const vb = svg.match(/viewBox="([^"]+)"/);

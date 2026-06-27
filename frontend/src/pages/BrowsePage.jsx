@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Icon from '../components/Icon';
-import { Search, SlidersHorizontal, X, Grid3X3, Grid2X2, Heart } from 'lucide-react';
+import { Search, SlidersHorizontal, X, Grid3X3, Grid2X2, Heart, Sparkles } from 'lucide-react';
 import { searchIcons, fetchIconBatch, getAllCollections } from '../utils/iconSearch';
+import { useAi } from '../context/AiContext';
 
 const PAGE_SIZE = 60;
 const SEARCH_DEBOUNCE_MS = 300;
@@ -26,6 +27,7 @@ export default function BrowsePage() {
   const [favorites, setFavorites] = useState(() => JSON.parse(localStorage.getItem('px_favorites') || '[]'));
   const [setOptions, setSetOptions] = useState([]);
   const searchSeq = useRef(0);
+  const { openAi } = useAi();
 
   useEffect(() => {
     getAllCollections().then((cols) => {
@@ -130,6 +132,14 @@ export default function BrowsePage() {
           )}
         </form>
         <button type="submit" form="" onClick={handleSearch} className="btn btn-primary">Search</button>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => openAi('search')}
+          style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+        >
+          <Sparkles size={15} /> AI
+        </button>
         <button
           className={`btn btn-secondary${showFilters ? ' btn-icon active' : ''}`}
           onClick={() => setShowFilters(!showFilters)}

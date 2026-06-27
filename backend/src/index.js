@@ -13,6 +13,7 @@ const serveFrontend = isProd && fs.existsSync(frontendDist);
 const iconRoutes = require('./routes/icons');
 const exportRoutes = require('./routes/export');
 const fontRoutes = require('./routes/font');
+const aiRoutes = require('./routes/ai');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -46,11 +47,13 @@ const writeLimiter = rateLimit({
 
 app.use('/api/font', writeLimiter);
 app.use('/api/export', writeLimiter);
+app.use('/api/ai', writeLimiter);
 
 // Routes
 app.use('/api/icons', iconRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/font', fontRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
