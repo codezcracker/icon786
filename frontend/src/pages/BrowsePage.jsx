@@ -4,6 +4,7 @@ import Icon from '../components/Icon';
 import { Search, SlidersHorizontal, X, Grid3X3, Grid2X2, Heart, Sparkles } from 'lucide-react';
 import { searchIcons, fetchIconBatch, getAllCollections } from '../utils/iconSearch';
 import { useAi } from '../context/AiContext';
+import { getFavorites, setFavorites } from '../utils/favorites';
 
 const PAGE_SIZE = 60;
 const SEARCH_DEBOUNCE_MS = 300;
@@ -24,7 +25,7 @@ export default function BrowsePage() {
   const [selectedSet, setSelectedSet] = useState(searchParams.get('set') || 'all');
   const [gridSize, setGridSize] = useState('md');
   const [showFilters, setShowFilters] = useState(false);
-  const [favorites, setFavorites] = useState(() => JSON.parse(localStorage.getItem('px_favorites') || '[]'));
+  const [favorites, setFavoritesState] = useState(() => getFavorites());
   const [setOptions, setSetOptions] = useState([]);
   const searchSeq = useRef(0);
   const { openAi } = useAi();
@@ -101,8 +102,8 @@ export default function BrowsePage() {
   const toggleFav = (id, e) => {
     e.stopPropagation();
     const updated = favorites.includes(id) ? favorites.filter((f) => f !== id) : [...favorites, id];
+    setFavoritesState(updated);
     setFavorites(updated);
-    localStorage.setItem('px_favorites', JSON.stringify(updated));
   };
 
   const iconSize = gridSize === 'sm' ? 20 : gridSize === 'md' ? 26 : 34;

@@ -277,4 +277,5 @@ module.exports = {
   aiGenerate,
   getPublicConfig,
   localSearchAssist,
+  cleanKey,
 };

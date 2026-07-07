@@ -83,24 +83,29 @@ router.post('/webp', async (req, res) => {
   }
 });
 
-// Export as ICO
+// Export as ICO (32×32 PNG payload; accepts raw SVG from the editor)
 router.post('/ico', async (req, res) => {
   try {
-    const { prefix, name, color = '#000000' } = req.body;
-    if (rejectIfBlocked(prefix, res)) return;
-    // Generate multiple sizes for ICO
+    const { prefix, name, color = '#000000', svg: rawSvg } = req.body;
+    if (!rawSvg && rejectIfBlocked(prefix, res)) return;
+
     const sizes = [16, 32, 48, 64];
     const pngBuffers = await Promise.all(
       sizes.map(async (s) => {
-        const svg = await fetchSVG(prefix, name, color, s);
-        return sharp(svg).png().toBuffer();
+        const svgBuffer = rawSvg
+          ? Buffer.from(rawSvg, 'utf8')
+          : await fetchSVG(prefix, name, color, s);
+        return sharp(svgBuffer)
+          .resize(s, s, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+          .png()
+          .toBuffer();
       })
     );
 
-    // Use the 32px version as primary
+    const filename = rawSvg ? 'icon.ico' : `${name}.ico`;
     res.setHeader('Content-Type', 'image/x-icon');
-    res.setHeader('Content-Disposition', `attachment; filename="${name}.ico"`);
-    res.send(pngBuffers[1]); // 32x32 as fallback
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(pngBuffers[1]);
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

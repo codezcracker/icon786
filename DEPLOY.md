@@ -31,7 +31,29 @@ No `VITE_API_URL` needed — frontend and API share the same origin.
 
 **Icons are fully self-hosted:** `packages/icon786-icons` (~266MB, committed to repo). Browse, search, download, export, and font generation use your server only. Fonts are bundled via `@fontsource` (no Google Fonts CDN).
 
-**npm package:** `@icon786/icons` in `packages/icon786-icons/` — publish to npm when ready for other apps.
+**npm package:** `@icon786/icons` in `packages/icon786-icons/` — publish with `npm run publish:icons` (see package README).
+
+## Upgrade to Render Starter (recommended for production)
+
+Free tier sleeps after ~15 minutes of inactivity. First request after sleep can take 30–60 seconds.
+
+1. Render dashboard → your **icon786** Web Service → **Settings**
+2. Under **Instance Type**, choose **Starter** ($7/mo) or higher
+3. Save — no code changes required
+
+Benefits: always-on, faster cold starts, more RAM for Sharp/font generation.
+
+## SEO & analytics
+
+Built in:
+
+- `frontend/index.html` — Open Graph + Twitter meta tags
+- `frontend/public/robots.txt` and `sitemap.xml`
+- Optional analytics via build-time env vars (set in Render **or** `frontend/.env` before build):
+  - `VITE_PLAUSIBLE_DOMAIN=icon786.com` — [Plausible](https://plausible.io)
+  - `VITE_GA_MEASUREMENT_ID=G-XXXXXXXX` — Google Analytics 4
+
+Redeploy after adding analytics env vars so Vite bakes them into the production bundle.
 
 ## Local production test
 

@@ -1,27 +1,48 @@
 # @icon786/icons
 
-Self-hosted icon data for [Icon786](https://icon786.com) — **201,259** icons across **134** permissive sets.
+201,000+ commercial-safe icons (MIT, Apache, ISC, CC0) bundled for Node and browser apps.
 
-## Use in Node / Express
-
-```js
-const icons = require('@icon786/icons');
-const mdi = icons.loadSet('mdi');
-const collections = icons.getCollections();
-```
-
-## Use in your app (future npm publish)
+## Install
 
 ```bash
 npm install @icon786/icons
 ```
 
-Icon JSON files live in `json/` using the standard IconifyJSON shape (portable SVG path data).
+## Usage
 
-## Regenerate from source
+```js
+const icons = require('@icon786/icons');
 
-Icon data is vendored into this package. To refresh after updating the allowlist:
+// List collections
+console.log(icons.collections.length);
+
+// Get icon JSON (Iconify format)
+const data = icons.getIconData('mdi', 'home');
+```
+
+### React
+
+```js
+import { Icon } from '@icon786/icons/react';
+```
+
+## Publish (maintainers)
+
+From the repo root:
 
 ```bash
-node scripts/vendor-icons.js
+npm run publish:icons
 ```
+
+You need an npm account with access to the `@icon786` scope:
+
+```bash
+npm login
+npm whoami
+```
+
+Bump version in `package.json` before each publish.
+
+## License
+
+MIT — see [LICENSE](../../LICENSE) and [LICENSES.md](../../LICENSES.md) for third-party icon set licenses.

@@ -12,10 +12,12 @@ import CollectionsPage from './pages/CollectionsPage';
 import FontGeneratorPage from './pages/FontGeneratorPage';
 import EditorPage from './pages/EditorPage';
 import LicensesPage from './pages/LicensesPage';
+import Analytics from './components/Analytics';
 
 export default function App() {
   return (
     <AiProvider>
+      <Analytics />
       <Router>
         <div className="min-h-screen flex flex-col bg-surface">
           <Navbar />

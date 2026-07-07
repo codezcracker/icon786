@@ -10,7 +10,10 @@
     "build": "cd frontend && npm run build",
     "start": "node backend/src/index.js",
     "render:build": "npm run install:all && npm run build",
-    "vendor:icons": "node scripts/vendor-icons.js"
+    "vendor:icons": "node scripts/vendor-icons.js",
+    "test": "npm run test:backend",
+    "test:backend": "cd backend && npm test",
+    "publish:icons": "cd packages/icon786-icons && npm publish --access public"
   },
   "engines": {
     "node": ">=18"

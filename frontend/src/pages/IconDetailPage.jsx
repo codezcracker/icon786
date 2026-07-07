@@ -10,6 +10,8 @@ import {
   exportSvgToWebP,
 } from '../utils/svgExport';
 import { downloadBlob } from '../utils/downloadFile';
+import { exportIcoViaApi } from '../utils/icoExport';
+import { getFavorites, toggleFavorite } from '../utils/favorites';
 import ExportOptions from '../components/ExportOptions';
 import { DEFAULT_EXPORT_SIZE, buildExportOpts } from '../constants/exportSizes';
 import { isPermissivePrefix } from '../utils/permissiveLicenses';
@@ -19,6 +21,7 @@ const FORMATS = [
   { id: 'png', label: 'PNG', desc: 'Transparent bg' },
   { id: 'jpg', label: 'JPG', desc: 'Photo quality' },
   { id: 'webp', label: 'WebP', desc: 'Modern web' },
+  { id: 'ico', label: 'ICO', desc: 'Favicon / Windows' },
 ];
 
 export default function IconDetailPage() {
@@ -43,8 +46,7 @@ export default function IconDetailPage() {
   const [downloadError, setDownloadError] = useState('');
 
   useEffect(() => {
-    const favs = JSON.parse(localStorage.getItem('px_favorites') || '[]');
-    setIsFav(favs.includes(iconId));
+    setIsFav(getFavorites().includes(iconId));
   }, [iconId]);
 
   const handleSave = async () => {
@@ -72,6 +74,9 @@ export default function IconDetailPage() {
       else if (fmt === 'png') blob = await exportSvgToPng(svg, exportOpts);
       else if (fmt === 'jpg') blob = await exportSvgToJpg(svg, { ...exportOpts, background: '#ffffff' });
       else if (fmt === 'webp') blob = await exportSvgToWebP(svg, exportOpts);
+      else if (fmt === 'ico') {
+        blob = await exportIcoViaApi({ prefix, name: decodedName, color: '#1C1C1E' });
+      }
 
       if (!blob) {
         setDownloadError('Export failed. Try SVG or a smaller size.');
@@ -86,10 +91,8 @@ export default function IconDetailPage() {
   };
 
   const toggleFav = () => {
-    const favs = JSON.parse(localStorage.getItem('px_favorites') || '[]');
-    const updated = isFav ? favs.filter((f) => f !== iconId) : [...favs, iconId];
-    localStorage.setItem('px_favorites', JSON.stringify(updated));
-    setIsFav(!isFav);
+    const { isFavorite } = toggleFavorite(iconId, getFavorites());
+    setIsFav(isFavorite);
   };
 
   const checkerBg = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14'%3E%3Crect width='7' height='7' fill='%23e8e8e8'/%3E%3Crect x='7' y='7' width='7' height='7' fill='%23e8e8e8'/%3E%3C/svg%3E")`;

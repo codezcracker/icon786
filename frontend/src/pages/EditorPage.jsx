@@ -12,6 +12,7 @@ import {
   parseViewBox,
 } from '../utils/svgExport';
 import { downloadBlob } from '../utils/downloadFile';
+import { exportIcoViaApi } from '../utils/icoExport';
 import ExportOptions from '../components/ExportOptions';
 import { DEFAULT_EXPORT_SIZE, buildExportOpts } from '../constants/exportSizes';
 
@@ -240,6 +241,7 @@ export default function EditorPage() {
       else if (fmt === 'png') trigger(await exportSvgToPng(svg, exportOpts), 'png');
       else if (fmt === 'jpg') trigger(await exportSvgToJpg(svg, exportOpts), 'jpg');
       else if (fmt === 'webp') trigger(await exportSvgToWebP(svg, exportOpts), 'webp');
+      else if (fmt === 'ico') trigger(await exportIcoViaApi({ svg }), 'ico');
     } catch (e) { console.error(e); }
     setDownloading(false);
   };
@@ -351,7 +353,7 @@ export default function EditorPage() {
               onHeightChange={setExportHeight}
             />
             <div className="editor-download-grid">
-              {['svg', 'png', 'jpg', 'webp'].map((fmt) => (
+              {['svg', 'png', 'jpg', 'webp', 'ico'].map((fmt) => (
                 <button
                   key={fmt}
                   className="editor-dl-btn"
