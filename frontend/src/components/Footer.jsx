@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Zap, GitFork, Share2, Heart } from 'lucide-react';
+import { Zap, Github, Heart } from 'lucide-react';
+
+const REPO_URL = 'https://github.com/codezcracker/icon786';
 
 export default function Footer() {
   return (
@@ -17,11 +19,14 @@ export default function Footer() {
               Search, edit, and download icons in any format — free forever.
             </p>
             <div className="footer__social">
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="footer__social-btn">
-                <GitFork size={15} />
-              </a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="footer__social-btn">
-                <Share2 size={15} />
+              <a
+                href={REPO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer__social-btn"
+                title="GitHub repository"
+              >
+                <Github size={15} />
               </a>
             </div>
           </div>
@@ -35,10 +40,27 @@ export default function Footer() {
               <li><Link to="/font-generator">Font Generator</Link></li>
             </ul>
           </div>
+
+          <div>
+            <p className="footer__section-title">Legal</p>
+            <ul className="footer__list">
+              <li>
+                <a href={`${REPO_URL}/blob/main/LICENSE`} target="_blank" rel="noopener noreferrer">
+                  MIT License (App)
+                </a>
+              </li>
+              <li><Link to="/licenses">Licenses & Credits</Link></li>
+              <li>
+                <a href={`${REPO_URL}/blob/main/LICENSES.md`} target="_blank" rel="noopener noreferrer">
+                  Icon Catalog Licenses
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
 
         <div className="footer__bottom">
-          <p>© 2026 Icon786. All icons free forever.</p>
+          <p>© 2026 Icon786. MIT licensed app · permissive icon catalog.</p>
           <p style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             Made with <Heart size={12} color="#f07e96" fill="#f07e96" /> for designers & developers
           </p>

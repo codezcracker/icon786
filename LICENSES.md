@@ -6,7 +6,7 @@ Icons are loaded from **`@icon786/icons`** (vendored under `packages/icon786-ico
 
 ## Your app code
 
-Icon786 application source is licensed under **MIT** (see repository `LICENSE` / `README` when added).
+Icon786 application source is licensed under **MIT** (see [LICENSE](./LICENSE)).
 
 ## Icon sets
 

@@ -11,6 +11,7 @@ import IconDetailPage from './pages/IconDetailPage';
 import CollectionsPage from './pages/CollectionsPage';
 import FontGeneratorPage from './pages/FontGeneratorPage';
 import EditorPage from './pages/EditorPage';
+import LicensesPage from './pages/LicensesPage';
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
               <Route path="/collections" element={<CollectionsPage />} />
               <Route path="/font-generator" element={<FontGeneratorPage />} />
               <Route path="/editor" element={<EditorPage />} />
+              <Route path="/licenses" element={<LicensesPage />} />
             </Routes>
           </main>
           <Footer />

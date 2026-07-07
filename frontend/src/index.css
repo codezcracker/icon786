@@ -752,7 +752,7 @@ input[type="range"]::-moz-range-thumb {
 
 .footer__grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr;
   gap: 48px;
 }
 
@@ -831,6 +831,73 @@ input[type="range"]::-moz-range-thumb {
 @media (max-width: 768px) {
   .footer__grid { grid-template-columns: 1fr; gap: 32px; }
 }
+
+/* ============================================================
+   LICENSES PAGE
+   ============================================================ */
+.licenses-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.licenses-page__title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--dark);
+  margin: 16px 0 8px;
+}
+
+.licenses-page__lead {
+  color: var(--gray-500);
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.licenses-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.licenses-card__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  color: var(--primary);
+}
+
+.licenses-card h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.licenses-card p,
+.licenses-list {
+  color: var(--gray-600);
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+.licenses-card p + p { margin-top: 12px; }
+
+.licenses-card a {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.licenses-card a:hover { text-decoration: underline; }
+
+.licenses-list {
+  margin: 12px 0;
+  padding-left: 20px;
+}
+
+.licenses-list li { margin-bottom: 8px; }
 
 /* ============================================================
    18. LANDING PAGE

@@ -2,82 +2,73 @@
 
 > 201,000+ commercial-safe icons from 134 icon sets (MIT, Apache, ISC, CC0).
 
+**Live:** [icon786.com](https://icon786.com) · [icon786.onrender.com](https://icon786.onrender.com)
+
 ## Features
 
-- **201,259 Icons** — Permissive Iconify sets only (Material, Phosphor, Tabler, Lucide, Fluent, Remix, Bootstrap, etc.)
-- **Online Search** — Instant full-text search across all icon sets
-- **Online Editor** — Edit icon color, background, shape, size, rotation
+- **201,259 Icons** — Permissive sets only (Material, Phosphor, Tabler, Lucide, Fluent, Remix, Bootstrap, etc.)
+- **Online Search** — Full-text search across all icon sets
+- **Online Editor** — Edit icon color, background, gradient, size, rotation
 - **Multi-format Download** — SVG, PNG, JPG, WebP (any resolution)
-- **Icon Font Generator** — Select icons and generate TTF/WOFF/WOFF2 font + CSS
+- **Icon Font Generator** — TTF, WOFF, and CSS in one ZIP
 - **Collections Browser** — Browse icons by set/category
+- **AI Search & Generate** — Natural language icon search and SVG generation
 - **Commercial-safe catalog** — MIT / Apache / ISC / CC0 only (see [LICENSES.md](./LICENSES.md))
 
 ## Tech Stack
 
 - **Frontend**: React 18 + Vite + TailwindCSS + Framer Motion
 - **Backend**: Node.js + Express
-- **Icons**: Iconify API (~201k permissive icons, filtered in app)
-- **Font**: Bricolage Grotesque
-- **Colors**: Primary `#E8395A`, Surface `#F5F4F2`
+- **Icons**: Self-hosted `@icon786/icons` (~266MB, vendored in repo)
+- **Fonts**: Quicksand + Bricolage Grotesque (self-hosted via `@fontsource`)
 
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+
 - npm 8+
 
 ### Install & Run
 
 ```bash
-# Install all dependencies
-cd Pixora
+git clone https://github.com/codezcracker/icon786.git
+cd icon786
 npm install
-cd frontend && npm install
-cd ../backend && npm install
-
-# Start both servers
-cd ..
+npm run install:all
 npm run dev
 ```
 
-Or start individually:
+- **Frontend:** http://localhost:5173
+- **Backend:** http://localhost:3001
+
+### Optional — AI on local dev
+
+Copy `backend/.env.example` to `backend/.env` and set one of:
 
 ```bash
-# Frontend (http://localhost:5173)
-cd frontend && npm run dev
-
-# Backend (http://localhost:3001)
-cd backend && npm run dev
+HUGGINGFACE_API_KEY=hf_your-token
+# or
+OPENAI_API_KEY=sk_your-key
 ```
+
+Restart the backend after changing env vars.
 
 ## Project Structure
 
 ```
-Pixora/
-├── frontend/          # React + Vite app
+icon786/
+├── frontend/              # React + Vite app
 │   └── src/
-│       ├── pages/
-│       │   ├── LandingPage.jsx       # Hero + features
-│       │   ├── BrowsePage.jsx        # Icon search + grid
-│       │   ├── IconDetailPage.jsx    # Icon editor + download
-│       │   ├── CollectionsPage.jsx   # Browse by icon set
-│       │   ├── FontGeneratorPage.jsx # Generate icon fonts
-│       │   └── EditorPage.jsx        # Visual icon editor
-│       ├── components/
-│       │   ├── Navbar.jsx
-│       │   └── Footer.jsx
-│       └── utils/
-│           └── iconSearch.js         # Iconify API utils
-│
-├── backend/           # Node.js + Express API
+│       ├── pages/         # Landing, Browse, Editor, Collections, Font Generator
+│       ├── components/    # Navbar, Footer, AI modals
+│       └── utils/         # Search, export, AI client
+├── backend/               # Node.js + Express API
 │   └── src/
-│       ├── routes/
-│       │   ├── icons.js    # Icon search + SVG proxy
-│       │   ├── export.js   # PNG/JPG/WebP export via Sharp
-│       │   └── font.js     # Font file generation + ZIP
-│       └── index.js
-│
-└── package.json       # Root scripts
+│       ├── routes/        # icons, export, font, ai
+│       └── services/      # localIcons, aiService
+├── packages/icon786-icons/  # Vendored icon library (201k+ icons)
+└── scripts/               # Allowlist + vendor utilities
 ```
 
 ## API Endpoints
@@ -93,12 +84,21 @@ Pixora/
 | POST | `/api/export/webp` | Export as WebP |
 | POST | `/api/export/bulk` | Bulk ZIP download |
 | POST | `/api/font/generate` | Generate icon font ZIP |
+| POST | `/api/ai/search` | AI icon search |
+| POST | `/api/ai/generate` | AI icon generation |
 | GET | `/api/health` | Health check |
+
+## Deploy
+
+See [DEPLOY.md](./DEPLOY.md) for Render (recommended) and Vercel instructions.
 
 ## License
 
-MIT — Application code.
+- **Application code:** [MIT](./LICENSE)
+- **Icons:** 134 permissive sets (~201k icons). See [LICENSES.md](./LICENSES.md).
 
-Icons: only **134 permissive sets** (~201k icons) are exposed. See [LICENSES.md](./LICENSES.md).
+Regenerate the allowlist:
 
-Regenerate the allowlist: `node scripts/generate-permissive-prefixes.js`
+```bash
+node scripts/generate-permissive-prefixes.js
+```
