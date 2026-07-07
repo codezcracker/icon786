@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: icon786
+    runtime: node
+    plan: free
+    buildCommand: npm run render:build
+    startCommand: NODE_ENV=production npm start
