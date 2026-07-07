@@ -34,29 +34,49 @@ const PROVIDERS = {
   },
 };
 
+function cleanKey(raw) {
+  if (!raw || typeof raw !== 'string') return '';
+  let key = raw.trim();
+  // Render/users sometimes paste KEY=value or wrap in quotes
+  if (key.includes('=')) {
+    const part = key.split('=').pop();
+    if (part) key = part.trim();
+  }
+  return key.replace(/^["']|["']$/g, '');
+}
+
 function getServerKey() {
-  return (
-    process.env.OPENAI_API_KEY
-    || process.env.AI_API_KEY
-    || process.env.HUGGINGFACE_API_KEY
-    || process.env.HF_TOKEN
-    || ''
-  );
+  const candidates = [
+    process.env.HUGGINGFACE_API_KEY,
+    process.env.HF_TOKEN,
+    process.env.OPENAI_API_KEY,
+    process.env.AI_API_KEY,
+  ].map(cleanKey).filter(Boolean);
+  return candidates.find((k) => k.startsWith('hf_')) || candidates[0] || '';
 }
 
 function inferServerProvider(key) {
-  if (!key) return 'openai';
-  if (key.startsWith('hf_')) return 'huggingface';
+  const k = cleanKey(key);
+  if (!k) return 'openai';
+  if (k.startsWith('hf_')) return 'huggingface';
   return 'openai';
+}
+
+function resolveServerBackend(key, userKey) {
+  const k = cleanKey(key);
+  const hfEnv = cleanKey(process.env.HUGGINGFACE_API_KEY) || cleanKey(process.env.HF_TOKEN);
+  // When Render only sets HF env vars, always use HF API (not OpenAI)
+  if (hfEnv && !cleanKey(userKey)) return 'huggingface';
+  return inferServerProvider(k);
 }
 
 function resolveCredentials(provider, userKey, userBaseUrl, model) {
   const cfg = PROVIDERS[provider] || PROVIDERS.server;
 
   if (provider === 'server') {
-    const key = userKey || getServerKey();
+    const key = cleanKey(userKey) || getServerKey();
     if (!key) return null;
-    const inferred = inferServerProvider(key);
+    const inferred = resolveServerBackend(key, userKey);
     const serverCfg = PROVIDERS[inferred] || cfg;
     return {
       baseUrl: (userBaseUrl || serverCfg.baseUrl).replace(/\/$/, ''),
@@ -66,13 +86,15 @@ function resolveCredentials(provider, userKey, userBaseUrl, model) {
   }
 
   if (!userKey) return null;
+  const key = cleanKey(userKey);
+  if (!key) return null;
   const baseUrl = provider === 'custom'
     ? userBaseUrl
     : (userBaseUrl || cfg.baseUrl);
   if (!baseUrl) return null;
   return {
     baseUrl: baseUrl.replace(/\/$/, ''),
-    apiKey: userKey,
+    apiKey: key,
     model: model || cfg.defaultModel,
   };
 }
